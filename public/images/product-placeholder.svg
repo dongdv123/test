@@ -1,0 +1,8 @@
+<svg width="320" height="240" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Image not available">
+  <rect width="320" height="240" fill="#e5e8e3" rx="16" />
+  <rect x="42" y="58" width="236" height="124" fill="#d1d8d2" rx="12" />
+  <circle cx="110" cy="112" r="22" fill="#b5bdb8" />
+  <path d="M84 154l44-44 36 36 22-22 50 50H84z" fill="#b5bdb8" />
+  <path d="M58 38h204c6 0 10 4 10 10v144c0 6-4 10-10 10H58c-6 0-10-4-10-10V48c0-6 4-10 10-10zm0 10v144h204V48H58z" fill="#c6cec7"/>
+</svg>
+
