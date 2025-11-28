@@ -1,49 +1,36 @@
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import Layout from "../components/Layout";
+import ProductCard from "../components/ProductCard";
 import { fetchShopifyProducts, fetchShopifyCollections } from "../lib/shopify";
 import { normalizeProduct } from "../lib/productFormatter";
-
-const navLinks = [
-  "new",
-  "christmas",
-  "gifts",
-  "interests",
-  "birthday",
-  "men",
-  "women",
-  "kids",
-  "kitchen & bar",
-  "home & garden",
-  "jewelry",
-  "corporate gifts",
-  "experiences",
-  "sale",
-];
+import { navLinks as baseNavLinks } from "../lib/siteContent";
+import { mapCollectionsToNav } from "../lib/navUtils";
 
 const quickLinks = [
   {
     label: "Christmas gifts",
-    img: "https://images.uncommongoods.com/product/56995/56995_1_640px.jpg",
+    img: "https://images.uncommongoods.com/images/hp/B/A1_TL_20251128_640px.jpg",
   },
   {
     label: "for him",
-    img: "https://images.uncommongoods.com/product/56858/56858_1_640px.jpg",
+    img: "https://images.uncommongoods.com/images/hp/B/F1_BS_20250818_640px.gif",
   },
   {
     label: "for her",
-    img: "https://images.uncommongoods.com/product/56137/56137_1_640px.jpg",
+    img: "https://images.uncommongoods.com/images/items/56700/56797_5_360px.webp",
   },
   {
     label: "stocking stuffers",
-    img: "https://images.uncommongoods.com/product/56765/56765_1_640px.jpg",
+    img: "https://images.uncommongoods.com/images/items/58200/58212_5_360px.webp",
   },
   {
     label: "best-selling gifts",
-    img: "https://images.uncommongoods.com/product/56967/56967_1_640px.jpg",
+    img: "https://images.uncommongoods.com/images/items/60900/60901_4_360px.webp",
   },
   {
     label: "new",
-    img: "https://images.uncommongoods.com/product/56970/56970_1_640px.jpg",
+    img: "https://images.uncommongoods.com/images/hp/B/A1_TL_20251128_640px.gif",
   },
 ];
 
@@ -166,26 +153,31 @@ const fallbackTrendingItems = [
 const fallbackRecentItems = [
   {
     title: "Retro Games Coding Advent",
+    price: "1,150,000 VND",
     rating: "★★★★☆ · 7",
     img: "https://images.uncommongoods.com/product/56779/56779_1_640px.jpg",
   },
   {
     title: "Crossbody Water Bottle Bag",
+    price: "780,000 VND",
     rating: "★★★★★ · 21",
     img: "https://images.uncommongoods.com/product/56859/56859_1_640px.jpg",
   },
   {
     title: "24 Days of Tea Advent Calendar",
+    price: "1,320,000 VND",
     rating: "★★★★★ · 71",
     img: "https://images.uncommongoods.com/product/56788/56788_1_640px.jpg",
   },
   {
     title: "Stitch a Day Advent Embroidery",
+    price: "950,000 VND",
     rating: "★★★★☆ · 9",
     img: "https://images.uncommongoods.com/product/56576/56576_1_640px.jpg",
   },
   {
     title: "Little Photographer Kids Camera",
+    price: "1,480,000 VND",
     rating: "★★★★★ · 4",
     img: "https://images.uncommongoods.com/product/56972/56972_1_640px.jpg",
   },
@@ -225,15 +217,6 @@ const fallbackTrendCatalog = trendTabs.reduce((acc, tab) => {
   return acc;
 }, {});
 
-const footerSections = [
-  { title: "Need help?", links: ["help center", "contact us"] },
-  { title: "About us", links: ["our story", "better to give", "our team", "careers"] },
-  {
-    title: "Support",
-    links: ["track & manage orders", "shipping & returns FAQ", "corporate gifts", "submit feedback"],
-  },
-];
-
 const TREND_ITEMS_PER_TAB = 5;
 
 const normalizeCollection = (collection) => {
@@ -243,13 +226,13 @@ const normalizeCollection = (collection) => {
     id: collection.id ? String(collection.id) : collection.handle || collection.title,
     title: collection.title || "Shopify collection",
     handle: collection.handle || "",
+    href: collection.handle ? `/collections/${collection.handle}` : null,
   };
 };
 
 export default function Home({ shopifyProducts = [], shopifyCollections = [] }) {
   const trackRefs = useRef({});
   const positions = useRef({});
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTrend, setActiveTrend] = useState(trendTabs[0]);
   const normalizedProducts = useMemo(
     () => (shopifyProducts || []).map(normalizeProduct).filter(Boolean),
@@ -259,6 +242,10 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     () => (shopifyCollections || []).map(normalizeCollection).filter(Boolean),
     [shopifyCollections],
   );
+  const navItems = useMemo(() => {
+    const mapped = mapCollectionsToNav(shopifyCollections);
+    return mapped.length ? mapped : baseNavLinks;
+  }, [shopifyCollections]);
 
   const derivedNewItems = normalizedProducts.slice(0, 5);
   const derivedBestItems = normalizedProducts.slice(5, 10);
@@ -270,14 +257,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
   const newItems = derivedNewItems.length ? derivedNewItems : fallbackNewItems;
   const bestItems = derivedBestItems.length ? derivedBestItems : fallbackBestItems;
   const recentItems = derivedRecentItems.length ? derivedRecentItems : fallbackRecentItems;
-  const navItems = normalizedCollections.length
-    ? normalizedCollections
-    : navLinks.map((label, index) => ({
-        id: `fallback-nav-${index}`,
-        title: label,
-        handle: "",
-      }));
-
   const trendCatalog = useMemo(() => {
     const catalog = {};
     trendTabs.forEach((tab, index) => {
@@ -287,11 +266,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     });
     return catalog;
   }, [derivedTrendProducts]);
-
-  useEffect(() => {
-    document.body.classList.toggle("menu-open", menuOpen);
-    return () => document.body.classList.remove("menu-open");
-  }, [menuOpen]);
 
   const registerTrack = (key) => (el) => {
     if (el) {
@@ -321,76 +295,12 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     });
   };
 
-  const renderProductCard = (item) => (
-    <>
-      <img src={item.img} alt={item.title} loading="lazy" />
-      <div className="slider-card-body">
-        <h4>{item.title}</h4>
-        {"price" in item && item.price && <div className="price">{item.price}</div>}
-        {item.rating && <div className="rating-text">{item.rating}</div>}
-      </div>
-    </>
+  const renderProductCard = (item, idx = 0, variant = "simple") => (
+    <ProductCard product={item} index={idx} variant={variant} />
   );
 
   return (
-    <>
-      <div className="promo-primary">
-        Perks members always get <strong>FREE shipping</strong>. <a href="#">Join today.</a>
-      </div>
-
-      <header className="header">
-        <div className="container">
-          <div className="header-top">
-            <div className="logo">
-              <span>✶</span> uncommon goods
-            </div>
-            <label className="search">
-              <span style={{ color: "#0c8a68", fontSize: 20 }}>🔍</span>
-              <input placeholder="search | gifts for mom who likes beer, books, and gardening" />
-            </label>
-            <div className="header-icons">
-              <div className="header-icon">
-                <span>👤</span>
-                <a href="#">sign in</a>
-              </div>
-              <div className="header-icon">
-                <span>🤍</span>
-                <a href="#">wish list</a>
-              </div>
-              <div className="header-icon">
-                <span>🎁</span>
-                <a href="#">gift finder</a>
-              </div>
-              <div className="header-icon cart-badge" data-count="2">
-                <span>🛒</span>
-                <a href="#">cart</a>
-              </div>
-            </div>
-          </div>
-          <button className="menu-toggle" onClick={() => setMenuOpen((prev) => !prev)}>
-            menu ☰
-          </button>
-          <nav className="nav">
-            {navItems.map((item) =>
-              item.handle ? (
-                <Link
-                  key={item.id || item.title}
-                  href={`/collections/${item.handle}`}
-                  className="nav-link"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {item.title}
-                </Link>
-              ) : (
-                <span key={item.id || item.title} className="nav-link disabled">
-                  {item.title}
-                </span>
-              ),
-            )}
-          </nav>
-        </div>
-      </header>
-
+    <Layout navItems={navItems}>
       <section className="quick-row">
         <div className="container">
           <div className="quick-carousel">
@@ -402,12 +312,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
                 </article>
               ))}
             </div>
-            <button className="prev" onClick={() => slide("quick", -1)}>
-              ‹
-            </button>
-            <button className="next" onClick={() => slide("quick", 1)}>
-              ›
-            </button>
           </div>
         </div>
       </section>
@@ -415,7 +319,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
       <section className="hero-feature">
         <div className="hero-media">
           <img
-            src="https://images.uncommongoods.com/images/items/57200/57240_1_940px.jpg"
+            src="https://macorner.co/cdn/shop/files/Christmas_Ornaments_Banner_2000x.jpg?v=1764214363"
             alt="glass forest"
             loading="lazy"
           />
@@ -436,85 +340,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
           ))}
         </div>
       </section>
-
-      <section className="handmade-spotlight">
-        <div>
-          <img
-            src="https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=900&q=80"
-            alt="Handmade wolf family sculpture"
-            loading="lazy"
-          />
-        </div>
-        <div className="spotlight-copy">
-          <small>handmade focus</small>
-          <h3>Wolf family wooden sculpture</h3>
-          <p>
-            Tác phẩm khắc laser trên gỗ phong mô phỏng gia đình sói, điểm nhấn trái tim sơn tay và chữ khắc tên từng
-            thành viên giúp khách cảm nhận hơi ấm thủ công độc bản.
-          </p>
-          <button className="btn btn-primary">khám phá đồ handmade →</button>
-        </div>
-      </section>
-
-      <section className="section-shell slider-full">
-        <h2 className="section-head">New for you</h2>
-        <div className="slider-shell">
-          <button className="slider-nav prev" onClick={() => slide("new", -1)}>
-            ‹
-          </button>
-          <div className="slider-track" ref={registerTrack("new")}>
-            {newItems.map((item) => (
-              <article className="slider-card" key={item.id || item.title}>
-                {renderProductCard(item)}
-              </article>
-            ))}
-          </div>
-          <button className="slider-nav next" onClick={() => slide("new", 1)}>
-            ›
-          </button>
-        </div>
-      </section>
-
-      <section className="section-shell slider-full">
-        <h2 className="section-head">Best-selling gifts</h2>
-        <div className="slider-shell">
-          <button className="slider-nav prev" onClick={() => slide("best", -1)}>
-            ‹
-          </button>
-          <div className="slider-track" ref={registerTrack("best")}>
-            {bestItems.map((item) => (
-              <article className="slider-card" key={item.id || item.title}>
-                {renderProductCard(item)}
-              </article>
-            ))}
-          </div>
-          <button className="slider-nav next" onClick={() => slide("best", 1)}>
-            ›
-          </button>
-        </div>
-      </section>
-
-      <section className="story-section">
-        <div className="story-copy">
-          <h2>Show them you know them</h2>
-          <p>
-            Their hobbies, interests, that story they tell each Christmas. From mugs that serve up content about their
-            favorite topics to guided experiences that turn stories into a memoir.
-          </p>
-          <button className="btn btn-primary">shop the gift guide →</button>
-        </div>
-        <div className="story-cards">
-          <article className="story-card">
-            <img src="https://images.uncommongoods.com/product/56590/56590_1_640px.jpg" alt="guided memoir" />
-            <button>guided memoir</button>
-          </article>
-          <article className="story-card">
-            <img src="https://images.uncommongoods.com/product/56530/56530_1_640px.jpg" alt="daily discovery gifts" />
-            <button>daily discovery gifts</button>
-          </article>
-        </div>
-      </section>
-
       <section className="section-shell slider-full">
         <div className="trending-header">
           <div className="section-head">
@@ -541,24 +366,93 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
             ‹
           </button>
           <div className="slider-track" ref={registerTrack("trend")}>
-            {trendCatalog[activeTrend].map((item) => (
-              <article className="slider-card" key={`${activeTrend}-${item.id || item.title}`}>
-                {renderProductCard(item)}
-              </article>
-            ))}
+            {trendCatalog[activeTrend].map((item, idx) =>
+              renderProductCard(item, idx, "simple"),
+            )}
           </div>
           <button className="slider-nav next" onClick={() => slide("trend", 1)}>
             ›
           </button>
         </div>
       </section>
+      <section className="handmade-spotlight">
+        <div>
+          <img
+            src="https://macorner.co/cdn/shop/files/Gifts_For_Book_Lovers_Banner_2000x.webp?v=1759569559"
+            alt="Handmade wolf family sculpture"
+            loading="lazy"
+          />
+        </div>
+        <div className="spotlight-copy">
+          <small>handmade focus</small>
+          <h3>Wolf family wooden sculpture</h3>
+          <p>
+            Tác phẩm khắc laser trên gỗ phong mô phỏng gia đình sói, điểm nhấn trái tim sơn tay và chữ khắc tên từng
+            thành viên giúp khách cảm nhận hơi ấm thủ công độc bản.
+          </p>
+          <button className="btn btn-primary">khám phá đồ handmade →</button>
+        </div>
+      </section>
+
+      <section className="section-shell slider-full">
+        <h2 className="section-head">New for you</h2>
+        <div className="slider-shell">
+          <button className="slider-nav prev" onClick={() => slide("new", -1)}>
+            ‹
+          </button>
+          <div className="slider-track" ref={registerTrack("new")}>
+            {newItems.map((item, idx) => renderProductCard(item, idx, "simple"))}
+          </div>
+          <button className="slider-nav next" onClick={() => slide("new", 1)}>
+            ›
+          </button>
+        </div>
+      </section>
+      <section className="story-section">
+        <div className="story-copy">
+          <h2>Show them you know them</h2>
+          <p>
+            Their hobbies, interests, that story they tell each Christmas. From mugs that serve up content about their
+            favorite topics to guided experiences that turn stories into a memoir.
+          </p>
+          <button className="btn btn-primary">shop the gift guide →</button>
+        </div>
+        <div className="story-cards">
+          <article className="story-card">
+            <img src="https://macorner.co/cdn/shop/files/You_Me_And_Our_Fur_Babies_-_Personalized_Pet_Blanket_Review.png?v=1735614204&width=400" alt="guided memoir" />
+            <button>guided memoir</button>
+          </article>
+          <article className="story-card">
+            <img src="https://macorner.co/cdn/shop/files/Photo_review_homepage.jpg?v=1761303235&width=400" alt="daily discovery gifts" />
+            <button>daily discovery gifts</button>
+          </article>
+        </div>
+      </section>
+      <section className="section-shell slider-full">
+        <h2 className="section-head">Best-selling gifts</h2>
+        <div className="slider-shell">
+          <button className="slider-nav prev" onClick={() => slide("best", -1)}>
+            ‹
+          </button>
+          <div className="slider-track" ref={registerTrack("best")}>
+            {bestItems.map((item, idx) => renderProductCard(item, idx, "simple"))}
+          </div>
+          <button className="slider-nav next" onClick={() => slide("best", 1)}>
+            ›
+          </button>
+        </div>
+      </section>
+
+      
+
+      
 
       <section className="maker-feature">
         <div className="maker-grid">
-          <img src="https://images.uncommongoods.com/product/41011/41011_1_640px.jpg" alt="vinyl art 1" />
-          <img src="https://images.uncommongoods.com/product/56985/56985_1_640px.jpg" alt="vinyl art 2" />
-          <img src="https://images.uncommongoods.com/product/56983/56983_1_640px.jpg" alt="vinyl art 3" />
-          <img src="https://images.uncommongoods.com/product/56984/56984_1_640px.jpg" alt="vinyl art 4" />
+          <img src="https://macorner.co/cdn/shop/files/Photo_review_homepage_1.jpg?v=1761303234&width=400" alt="vinyl art 1" />
+          <img src="https://macorner.co/cdn/shop/files/Photo_review_homepage_4.jpg?v=1761303234&width=400" alt="vinyl art 2" />
+          <img src="https://macorner.co/cdn/shop/files/Photo_review_homepage_2.jpg?v=1761303234&width=400" alt="vinyl art 3" />
+          <img src="https://macorner.co/cdn/shop/files/Review_photo_2_78120947-5c93-4ada-a136-720631c02c20.jpg?v=1761303421&width=400" alt="vinyl art 4" />
         </div>
         <div className="maker-copy">
           <small>UNCOMMON MAKER</small>
@@ -591,7 +485,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
       </section>
 
       <section className="better-give">
-        <img src="https://images.uncommongoods.com/product/56991/56991_1_940px.jpg" alt="breastcancer.org" loading="lazy" />
         <div>
           <small>BETTER TO GIVE</small>
           <h3>Partnering with Breastcancer.org</h3>
@@ -601,6 +494,11 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
           </p>
           <button className="btn btn-primary">shop their gift guide</button>
         </div>
+        <img
+          src="https://macorner.co/cdn/shop/files/Home_Living_Homepage_Banner_2000x.jpg?v=1755945450"
+          alt="breastcancer.org"
+          loading="lazy"
+        />
       </section>
 
       <section className="recent-section slider-full">
@@ -613,11 +511,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
             ‹
           </button>
           <div className="slider-track" ref={registerTrack("recent")}>
-            {recentItems.map((item) => (
-              <article className="slider-card" key={item.id || item.title}>
-                {renderProductCard(item)}
-              </article>
-            ))}
+            {recentItems.map((item, idx) => renderProductCard(item, idx, "simple"))}
           </div>
           <button className="slider-nav next" onClick={() => slide("recent", 1)}>
             ›
@@ -675,42 +569,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
           </div>
         </div>
       </section>
-
-      <footer className="container">
-        <div className="footer-top">
-          {footerSections.map((section) => (
-            <div className="footer-col" key={section.title}>
-              <h4>{section.title}</h4>
-              <ul>
-                {section.links.map((link) => (
-                  <li key={link}>{link}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-          <div className="footer-col">
-            <h4>Sign up for emails</h4>
-            <ul>
-              <li>New subscribers get a $5 promo code.</li>
-              <li>
-                <input
-                  style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 10, width: "100%" }}
-                  placeholder="Email address"
-                />
-              </li>
-              <li>
-                <button className="btn btn-primary" style={{ padding: "12px 24px" }}>
-                  sign up
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <p className="footer-bottom">
-          Shipping to: 🇻🇳 · change · ©2025 Uncommon Goods™ LLC · 888-365-0056 · Brooklyn, NY
-        </p>
-      </footer>
-    </>
+    </Layout>
   );
 }
 
