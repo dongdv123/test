@@ -1,13 +1,18 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { useSiteChrome } from "../hooks/useSiteChrome";
+import { useRouteLoading } from "../hooks/useRouteLoading";
+import RouteSkeleton from "./RouteSkeleton";
 
 export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClick, children }) {
-  const { menuOpen, toggleMenu, closeMenu, navItems: computedNavItems, footerSections, handleNavClick } =
-    useSiteChrome({
-      navItems,
-      onNavClick,
-    });
+  const router = useRouter();
+  const { menuOpen, toggleMenu, closeMenu, navItems: computedNavItems, footerSections, handleNavClick } = useSiteChrome({
+    navItems,
+    onNavClick,
+  });
+  const { isLoading: routeLoading, targetRoute } = useRouteLoading({ delay: 150, minVisible: 300 });
+  const skeletonPath = targetRoute || router?.asPath || "/";
 
   const renderNavItem = (item) => {
     const key = item.id || item.title;
@@ -134,7 +139,9 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
         </div>
       </header>
 
-      <main>{children}</main>
+      <main aria-busy={routeLoading}>
+        {routeLoading ? <RouteSkeleton pathname={skeletonPath} /> : children}
+      </main>
 
       <footer className="">
         <div className="footer-top">

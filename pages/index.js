@@ -217,7 +217,9 @@ const fallbackTrendCatalog = trendTabs.reduce((acc, tab) => {
   return acc;
 }, {});
 
-const TREND_ITEMS_PER_TAB = 5;
+const MIN_SECTION_ITEMS = 10;
+const TREND_ITEMS_PER_TAB = 10;
+const TOTAL_TREND_ITEMS = TREND_ITEMS_PER_TAB * trendTabs.length;
 
 const normalizeCollection = (collection) => {
   if (!collection) return null;
@@ -247,22 +249,38 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     return mapped.length ? mapped : baseNavLinks;
   }, [shopifyCollections]);
 
-  const derivedNewItems = normalizedProducts.slice(0, 5);
-  const derivedBestItems = normalizedProducts.slice(5, 10);
-  const trendSliceStart = 10;
-  const trendSliceEnd = trendSliceStart + trendTabs.length * TREND_ITEMS_PER_TAB;
-  const derivedTrendProducts = normalizedProducts.slice(trendSliceStart, trendSliceEnd);
-  const derivedRecentItems = normalizedProducts.slice(trendSliceEnd, trendSliceEnd + 5);
+  const ensureMinimumItems = (items, fallback, min) => {
+    if (items.length >= min) return items;
+    const pool = fallback && fallback.length ? fallback : [];
+    const result = [...items];
+    let i = 0;
+    while (result.length < min && pool.length) {
+      result.push(pool[i % pool.length]);
+      i++;
+    }
+    return result.length ? result : pool.slice(0, min);
+  };
 
-  const newItems = derivedNewItems.length ? derivedNewItems : fallbackNewItems;
-  const bestItems = derivedBestItems.length ? derivedBestItems : fallbackBestItems;
-  const recentItems = derivedRecentItems.length ? derivedRecentItems : fallbackRecentItems;
+  const derivedNewItems = normalizedProducts.slice(0, MIN_SECTION_ITEMS);
+  const derivedBestItems = normalizedProducts.slice(
+    MIN_SECTION_ITEMS,
+    MIN_SECTION_ITEMS * 2,
+  );
+  const trendSliceStart = MIN_SECTION_ITEMS * 2;
+  const trendSliceEnd = trendSliceStart + TOTAL_TREND_ITEMS;
+  const derivedTrendProducts = normalizedProducts.slice(trendSliceStart, trendSliceEnd);
+  const derivedRecentItems = normalizedProducts.slice(trendSliceEnd);
+
+  const newItems = ensureMinimumItems(derivedNewItems, fallbackNewItems, MIN_SECTION_ITEMS);
+  const bestItems = ensureMinimumItems(derivedBestItems, fallbackBestItems, MIN_SECTION_ITEMS);
+  const recentItems = ensureMinimumItems(derivedRecentItems, fallbackRecentItems, MIN_SECTION_ITEMS);
   const trendCatalog = useMemo(() => {
     const catalog = {};
     trendTabs.forEach((tab, index) => {
       const start = index * TREND_ITEMS_PER_TAB;
       const slice = derivedTrendProducts.slice(start, start + TREND_ITEMS_PER_TAB);
-      catalog[tab] = slice.length ? slice : fallbackTrendCatalog[tab];
+      const fallbackItems = fallbackTrendCatalog[tab] || fallbackTrendingItems;
+      catalog[tab] = ensureMinimumItems(slice, fallbackItems, TREND_ITEMS_PER_TAB);
     });
     return catalog;
   }, [derivedTrendProducts]);
@@ -575,7 +593,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
 
 export async function getServerSideProps() {
   try {
-    const [products, collections] = await Promise.all([fetchShopifyProducts(50), fetchShopifyCollections(12)]);
+    const [products, collections] = await Promise.all([fetchShopifyProducts(120), fetchShopifyCollections(12)]);
     return {
       props: {
         shopifyProducts: products,
