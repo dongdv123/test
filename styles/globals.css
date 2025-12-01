@@ -616,9 +616,19 @@ section {
   text-decoration: none;
   color: #0b3b29;
   align-items: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
-.header-icon span[aria-hidden="true"] {
+.header-icon span[aria-hidden="true"],
+.header-icon .material-icons {
+  font-size: 20px;
+}
+
+.mobile-icon-btn .material-icons {
   font-size: 20px;
 }
 
@@ -1244,6 +1254,12 @@ section {
   background: transparent;
   box-shadow: none;
   border-radius: 0;
+}
+
+/* Remove background for wishlist page */
+.section-shell .collection-grid .collection-product-card {
+  background: transparent;
+  box-shadow: none;
 }
 
 .collection-card-media {
@@ -2003,7 +2019,12 @@ section {
 
 .collection-breadcrumb a,
 .collection-breadcrumb span {
-  font-weight: 700 !important;
+  font-weight: 400;
+}
+
+.collection-breadcrumb .breadcrumb-divider {
+  margin: 0 4px;
+  color: #666;
 }
 
 .story-cards {
@@ -2339,7 +2360,8 @@ footer {
     padding-left: 12px;
   }
 
-  .nav-mobile-action span[aria-hidden="true"] {
+  .nav-mobile-action span[aria-hidden="true"],
+  .nav-mobile-action .material-icons {
     font-size: 20px;
     color: #0c8a68;
   }
@@ -2445,10 +2467,12 @@ footer {
 
   .quick-track {
     gap: 10px;
+    padding-left: calc((100% - 10px) / 2 / 2);
+    justify-content: flex-start;
   }
 
   .quick-card {
-    flex: 0 0 70%;
+    flex: 0 0 calc((100% - 10px) / 2);
     flex-direction: column;
     align-items: stretch;
     padding: 0;
@@ -2460,9 +2484,11 @@ footer {
 
   .quick-card img {
     width: 100%;
-    height: 170px;
+    aspect-ratio: 1 / 1;
+    height: auto;
     border-radius: 0;
     display: block;
+    object-fit: cover;
   }
 
   .quick-card span {
@@ -2474,6 +2500,7 @@ footer {
     font-size: 15px;
     letter-spacing: 0.02em;
     border-radius: 0 0 0.75rem 0.75rem;
+    text-align: center;
   }
 
   .collection-grid {

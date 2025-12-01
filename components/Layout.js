@@ -136,26 +136,26 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
               gikzo
             </Link>
             <label className="search">
-              <span style={{ color: "#0c8a68", fontSize: 20 }}>🔍</span>
+              <span className="material-icons" style={{ color: "#0c8a68", fontSize: 20 }}>search</span>
               <input placeholder="search | gifts for mom who likes beer, books, and gardening" />
             </label>
             <div className="header-mobile-icons">
               <button type="button" aria-label="search" className="mobile-icon-btn" onClick={() => setMobileSearchOpen(true)}>
-                🔍
+                <span className="material-icons">search</span>
               </button>
               <Link className="mobile-icon-btn cart-badge" data-count={cartBadgeCount} href="/cart" aria-label="cart">
-                🛒
+                <span className="material-icons">shopping_cart</span>
               </Link>
             </div>
             <div className="header-icons">
               {isAuthenticated ? (
                 <Link className="header-icon" href="/profile">
-                  <span aria-hidden="true">📇</span>
+                  <span className="material-icons" aria-hidden="true">account_circle</span>
                   <span className="header-icon-label">{user?.name || "profile"}</span>
                 </Link>
               ) : (
                 <button type="button" className="header-icon" onClick={() => openAuthModal("login")}>
-                  <span aria-hidden="true">👤</span>
+                  <span className="material-icons" aria-hidden="true">person</span>
                   <span className="header-icon-label">sign in</span>
                 </button>
               )}
@@ -165,15 +165,15 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
                 data-count={hasWishlistItems ? wishlistCount : undefined}
                 aria-label={wishlistAriaLabel}
               >
-                <span aria-hidden="true">🤍</span>
+                <span className="material-icons" aria-hidden="true">favorite_border</span>
                 <span className="header-icon-label">wish list</span>
               </Link>
               <a className="header-icon" href="#">
-                <span aria-hidden="true">🎁</span>
+                <span className="material-icons" aria-hidden="true">card_giftcard</span>
                 <span className="header-icon-label">gift finder</span>
               </a>
               <Link className="header-icon cart-badge" data-count={cartBadgeCount} href="/cart">
-                <span aria-hidden="true">🛒</span>
+                <span className="material-icons" aria-hidden="true">shopping_cart</span>
                 <span className="header-icon-label">cart</span>
               </Link>
             </div>
@@ -182,19 +182,19 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
             <div className="nav-mobile-actions">
               {isAuthenticated ? (
                 <Link href="/profile" className="nav-mobile-action">
-                  <span aria-hidden="true">👤</span> Hi, {user?.name?.split(" ")[0] || "User"}
+                  <span className="material-icons" aria-hidden="true">account_circle</span> Hi, {user?.name?.split(" ")[0] || "User"}
                 </Link>
               ) : (
                 <button type="button" className="nav-mobile-action" onClick={() => openAuthModal("login")}>
-                  <span aria-hidden="true">👤</span> sign in
+                  <span className="material-icons" aria-hidden="true">person</span> sign in
                 </button>
               )}
               <Link href="/wishlist" className="nav-mobile-action wishlist-link">
-                <span aria-hidden="true">🤍</span> wish list
+                <span className="material-icons" aria-hidden="true">favorite_border</span> wish list
                 {hasWishlistItems && <span className="wishlist-count">{wishlistCount}</span>}
               </Link>
               <a href="#" className="nav-mobile-action">
-                <span aria-hidden="true">🎁</span> gift finder
+                <span className="material-icons" aria-hidden="true">card_giftcard</span> gift finder
               </a>
             </div>
             <div className="nav-list">{computedNavItems.map(renderNavItem)}</div>
@@ -214,7 +214,7 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
             >
               <div className="mobile-search-input">
                 <div className="mobile-search-input-row">
-                  <span aria-hidden="true">🔍</span>
+                  <span className="material-icons" aria-hidden="true">search</span>
                   <textarea
                     rows={2}
                     placeholder="geeky husband, budget is $100"

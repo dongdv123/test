@@ -42,6 +42,22 @@ export default function ProductDetailPage({ product, navItems }) {
   const priceText = formatPriceRange(product);
   const [showDrawer, setShowDrawer] = useState(false);
   const [activeImage, setActiveImage] = useState(images[0]);
+
+  // Find collection link for category - only link if collection exists
+  const categoryLink = useMemo(() => {
+    if (!product.productType) return null;
+    const productTypeLower = product.productType.toLowerCase();
+    // Try to find matching collection in navItems by title
+    const matchingNav = navItems.find(
+      (nav) => nav.title?.toLowerCase() === productTypeLower
+    );
+    // Only return link if we found a real collection with href
+    if (matchingNav?.href) {
+      return matchingNav.href;
+    }
+    // Don't create fake links - return null if no match
+    return null;
+  }, [product.productType, navItems]);
   const [selectedOptions, setSelectedOptions] = useState(() => {
     const defaults = {};
     product.options?.forEach((option) => {
@@ -131,7 +147,11 @@ export default function ProductDetailPage({ product, navItems }) {
         </span>
         {product.productType && (
           <span>
-            {product.productType.toLowerCase()}
+            {categoryLink ? (
+              <Link href={categoryLink}>{product.productType.toLowerCase()}</Link>
+            ) : (
+              product.productType.toLowerCase()
+            )}
             <span className="breadcrumb-divider"> / </span>
           </span>
         )}
