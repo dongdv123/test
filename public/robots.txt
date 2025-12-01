@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /cart
+Disallow: /profile
+Disallow: /wishlist
+
+Sitemap: https://gikzo.com/sitemap.xml
+

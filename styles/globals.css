@@ -1,7 +1,7 @@
 .cart-page {
   padding: 40px 0 80px;
   width: min(100%, var(--site-max-width));
-  margin: 0 auto;
+  margin: 20px auto !important;
 }
 
 .cart-header {
@@ -225,7 +225,8 @@
 }
 
 .profile-page {
-  padding: 40px 0 80px;
+  margin:20px auto !important;
+  padding: 40px 80px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -395,7 +396,6 @@
     padding: 0;
   }
 }
-@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap");
 
 :root {
   --fern: #0c8a68;
@@ -1053,7 +1053,6 @@ section {
   border-radius: var(--card-radius);
   padding: 32px;
   margin: 60px auto;
-  box-shadow: 0 18px 40px rgba(15, 32, 24, 0.08);
 }
 
 .handmade-spotlight img {
@@ -2275,44 +2274,47 @@ section {
   body.menu-open .nav {
     display: block;
     width: 100%;
-    background: #fff;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     margin-top: 8px;
     padding: 12px 0 6px;
-    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.1);
   }
 
   .nav-mobile-actions {
     display: flex;
     justify-content: space-between;
-    align-items: stretch;
-    gap: 10px;
-    padding: 10px 0 14px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0 16px;
     border-bottom: 1px solid var(--border);
   }
 
   .nav-mobile-action {
     flex: 1;
     display: inline-flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     font-weight: 600;
     color: #0d291f;
     text-decoration: none;
     text-transform: lowercase;
-    font-size: 13px;
+    font-size: 14px;
+    justify-content: center;
   }
 
   .nav-mobile-action + .nav-mobile-action {
     border-left: 1px solid var(--border);
-    padding-left: 10px;
+    padding-left: 12px;
   }
 
   .nav-mobile-action span[aria-hidden="true"] {
-    font-size: 22px;
+    font-size: 20px;
     color: #0c8a68;
+  }
+
+  .nav-mobile-action .wishlist-count {
+    margin-left: 4px;
   }
 
   .nav-list {
@@ -2504,6 +2506,11 @@ section {
     flex: 0 0 calc((100% - 24px) / 5);
     max-width: calc((100% - 24px) / 5);
     height: 60px;
+  }
+
+  .cart-drawer-body-wrapper {
+    width: 100%;
+    max-width: 100%;
   }
 }
 

@@ -9,7 +9,7 @@ export default function ProductCard({ product, index = 0, variant = "simple" }) 
     return (
       <article className="slider-card">
         <div className="product-card-body">
-          <img src={card.img} alt={card.title} loading="lazy" />
+          <img src={card.img} alt={card.title} loading="lazy" width="400" height="400" />
           <div className="slider-card-body">
             <h4>{card.title}</h4>
             {card.price && (

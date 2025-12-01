@@ -179,11 +179,9 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
           <nav className="nav" id="primary-nav">
             <div className="nav-mobile-actions">
               {isAuthenticated ? (
-                <>
-                  <Link href="/profile" className="nav-mobile-action">
-                    <span aria-hidden="true">📇</span> profile
-                  </Link>
-                </>
+                <Link href="/profile" className="nav-mobile-action">
+                  <span aria-hidden="true">👤</span> Hi, {user?.name?.split(" ")[0] || "User"}
+                </Link>
               ) : (
                 <button type="button" className="nav-mobile-action" onClick={() => openAuthModal("login")}>
                   <span aria-hidden="true">👤</span> sign in

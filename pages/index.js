@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import Layout from "../components/Layout";
@@ -325,8 +326,19 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
   };
 
   return (
-    <Layout navItems={navItems}>
-      <section className="quick-row">
+    <>
+      <Head>
+        <title>Gikzo - Uncommon Gifts & Unique Products</title>
+        <meta name="description" content="Discover unique and uncommon gifts at Gikzo. Hand-selected products for every occasion, from Christmas gifts to personalized items." />
+        <meta name="keywords" content="gifts, unique gifts, uncommon goods, Christmas gifts, personalized gifts" />
+        <meta property="og:title" content="Gikzo - Uncommon Gifts & Unique Products" />
+        <meta property="og:description" content="Discover unique and uncommon gifts at Gikzo. Hand-selected products for every occasion." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href="https://gikzo.com" />
+      </Head>
+      <Layout navItems={navItems}>
+        <section className="quick-row">
         <div className="container">
           <div className="quick-carousel">
             <div className="quick-track" ref={registerTrack("quick")}>
@@ -594,7 +606,8 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
           </div>
         </div>
       </section>
-    </Layout>
+      </Layout>
+    </>
   );
 }
 

@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Link from "next/link";
 import Layout from "../../components/Layout";
 import WishlistButton from "../../components/WishlistButton";
@@ -38,8 +39,17 @@ export default function CollectionPage({ collection, navItems }) {
     .slice(0, COLLECTION_PRODUCT_LIMIT);
 
   return (
-    <Layout navItems={navItems}>
-      <header className="collection-page-header">
+    <>
+      <Head>
+        <title>{collection.title} | Gikzo</title>
+        <meta name="description" content={collection.description || `Browse ${collection.title} collection at Gikzo`} />
+        <meta property="og:title" content={collection.title} />
+        <meta property="og:description" content={collection.description || collection.title} />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href={`https://gikzo.com/collections/${collection.handle}`} />
+      </Head>
+      <Layout navItems={navItems}>
+        <header className="collection-page-header">
         <div className="container">
         <Link href="/" className="back-link">
             ← Back to home
@@ -87,7 +97,8 @@ export default function CollectionPage({ collection, navItems }) {
           <p className="collection-empty">Chưa có sản phẩm trong danh mục này.</p>
         )}
       </section>
-    </Layout>
+      </Layout>
+    </>
   );
 }
 

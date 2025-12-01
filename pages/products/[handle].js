@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Link from "next/link";
 import Layout from "../../components/Layout";
 import ProductCard from "../../components/ProductCard";
@@ -88,9 +89,41 @@ export default function ProductDetailPage({ product, navItems }) {
 
   const lastCartItem = cartItems[cartItems.length - 1];
 
+  const productJsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.title,
+    description: product.description || product.title,
+    image: images,
+    offers: {
+      "@type": "Offer",
+      price: activeVariant?.price || product.priceRange?.min?.amount || "0",
+      priceCurrency: currency,
+      availability: activeVariant?.availableForSale
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
-    <Layout navItems={navItems}>
-      <nav className="collection-breadcrumb container">
+    <>
+      <Head>
+        <title>{product.title} | Gikzo</title>
+        <meta name="description" content={product.description || `${product.title} - Available at Gikzo`} />
+        <meta property="og:title" content={product.title} />
+        <meta property="og:description" content={product.description || product.title} />
+        <meta property="og:type" content="product" />
+        {images[0] && <meta property="og:image" content={images[0]} />}
+        <meta property="product:price:amount" content={activeVariant?.price || product.priceRange?.min?.amount || "0"} />
+        <meta property="product:price:currency" content={currency} />
+        <link rel="canonical" href={`https://gikzo.com/products/${product.handle}`} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      </Head>
+      <Layout navItems={navItems}>
+        <nav className="collection-breadcrumb container">
         <span>
           <Link href="/">home</Link>
           <span className="breadcrumb-divider"> / </span>
@@ -231,36 +264,46 @@ export default function ProductDetailPage({ product, navItems }) {
         </section>
       ) : null}
 
-      <div className={`cart-drawer ${showDrawer ? "open" : ""}`}>
-        <div className="cart-drawer-header">
-          <strong>Added to your cart</strong>
-          <button type="button" onClick={() => setShowDrawer(false)}>
-            ✕
-          </button>
-        </div>
-        <div className="cart-drawer-body">
-          {lastCartItem ? (
-            <>
-              <div className="cart-item">
-                <img src={lastCartItem.image} alt={lastCartItem.title} />
-                <div>
-                  <div className="cart-item-title">{lastCartItem.title}</div>
-                  <div className="cart-item-price">
-                    {formatPrice(lastCartItem.unitPrice)} · Qty {lastCartItem.quantity}
+      <div
+        className={`cart-drawer ${showDrawer ? "open" : ""}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setShowDrawer(false);
+          }
+        }}
+      >
+        <div className="cart-drawer-body-wrapper">
+          <div className="cart-drawer-header">
+            <strong>Added to your cart</strong>
+            <button type="button" onClick={() => setShowDrawer(false)}>
+              ✕
+            </button>
+          </div>
+          <div className="cart-drawer-body">
+            {lastCartItem ? (
+              <>
+                <div className="cart-item">
+                  <img src={lastCartItem.image} alt={lastCartItem.title} />
+                  <div>
+                    <div className="cart-item-title">{lastCartItem.title}</div>
+                    <div className="cart-item-price">
+                      {formatPrice(lastCartItem.unitPrice)} · Qty {lastCartItem.quantity}
+                    </div>
+                    {lastCartItem.variantTitle && <div className="cart-item-variant">{lastCartItem.variantTitle}</div>}
                   </div>
-                  {lastCartItem.variantTitle && <div className="cart-item-variant">{lastCartItem.variantTitle}</div>}
                 </div>
-              </div>
-              <Link href="/cart" className="btn btn-primary drawer-checkout">
-                view cart
-              </Link>
-            </>
-          ) : (
-            <p>Your cart is empty.</p>
-          )}
+                <Link href="/cart" className="btn btn-primary drawer-checkout">
+                  view cart
+                </Link>
+              </>
+            ) : (
+              <p>Your cart is empty.</p>
+            )}
+          </div>
         </div>
       </div>
-    </Layout>
+      </Layout>
+    </>
   );
 }
 
