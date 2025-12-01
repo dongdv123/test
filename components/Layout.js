@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -7,8 +8,9 @@ import { useRouteLoading } from "../hooks/useRouteLoading";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import AuthModal from "./AuthModal";
-import RouteSkeleton from "./RouteSkeleton";
+
+const AuthModal = dynamic(() => import("./AuthModal"), { ssr: false });
+const RouteSkeleton = dynamic(() => import("./RouteSkeleton"), { ssr: false });
 
 const keepShoppingFor = ["golf", "cat", "puzzle", "advent calendar", "tea advent calendar"];
 const trendingSearches = ["advent calendar", "golf", "puzzle", "emotional support desk pets", "cat"];

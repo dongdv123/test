@@ -7,7 +7,7 @@ import { fetchProductByHandle, fetchShopifyCollections } from "../../lib/shopify
 import { formatPrice } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { mapCollectionsToNav } from "../../lib/navUtils";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
 
 const formatPriceRange = (product) => {
@@ -70,7 +70,7 @@ export default function ProductDetailPage({ product, navItems }) {
   const displayPrice = activeVariant?.price ? formatPrice(Number(activeVariant.price), currency) : priceText;
   const { addItem, items: cartItems } = useCart();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     const unitPrice = Number(activeVariant?.price ?? product.priceRange?.min?.amount ?? 0);
     addItem(
       {
@@ -79,13 +79,14 @@ export default function ProductDetailPage({ product, navItems }) {
         handle: product.handle,
         image: activeImage,
         unitPrice,
+        currency,
         priceFormatted: formatPrice(unitPrice || 0, currency),
         variantTitle: activeVariant?.title || null,
       },
       quantity,
     );
     setShowDrawer(true);
-  };
+  }, [activeVariant, product, activeImage, currency, quantity, addItem]);
 
   const lastCartItem = cartItems[cartItems.length - 1];
 

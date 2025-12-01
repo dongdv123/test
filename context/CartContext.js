@@ -17,13 +17,15 @@ const normalizeCartItem = (item = {}) => {
   if (!id) return null;
 
   const unitPrice = Number(item.unitPrice ?? item.price ?? 0);
+  const currency = item.currency || "USD";
   return {
     id: String(id),
     title: item.title || "Cart item",
     handle: item.handle || "",
     image: item.image || item.img || "/images/product-placeholder.svg",
     unitPrice: Number.isFinite(unitPrice) ? unitPrice : 0,
-    priceFormatted: item.priceFormatted || formatPrice(unitPrice || 0, item.currency || "USD"),
+    currency,
+    priceFormatted: item.priceFormatted || formatPrice(unitPrice || 0, currency),
     quantity: Math.max(1, Number(item.quantity) || 1),
     variantTitle: item.variantTitle || null,
   };
@@ -74,11 +76,18 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const updateQuantity = useCallback((id, quantity) => {
-    setItems((prev) =>
-      prev
-        .map((item) => (item.id === id ? { ...item, quantity: Math.max(1, Number(quantity) || 1) } : item))
-        .filter((item) => item.quantity > 0),
-    );
+    const newQuantity = Math.max(0, Number(quantity) || 0);
+    if (newQuantity === 0) {
+      // If quantity is 0, remove the item
+      setItems((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      // Otherwise, update the quantity (minimum 1)
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
+        )
+      );
+    }
   }, []);
 
   const removeItem = useCallback((id) => {

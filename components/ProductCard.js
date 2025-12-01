@@ -1,8 +1,9 @@
+import { memo } from "react";
 import Link from "next/link";
 import { useProductCard } from "../hooks/useProductCard";
 import WishlistButton from "./WishlistButton";
 
-export default function ProductCard({ product, index = 0, variant = "simple" }) {
+function ProductCard({ product, index = 0, variant = "simple" }) {
   const card = useProductCard(product, index);
 
   if (variant === "simple") {
@@ -61,4 +62,6 @@ export default function ProductCard({ product, index = 0, variant = "simple" }) 
     </article>
   );
 }
+
+export default memo(ProductCard);
 

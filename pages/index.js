@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
 import { fetchShopifyProducts, fetchShopifyCollections } from "../lib/shopify";
@@ -288,7 +288,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     }
   };
 
-  const slide = (key, direction) => {
+  const slide = useCallback((key, direction) => {
     const track = trackRefs.current[key];
     if (!track || !track.children.length) return;
 
@@ -308,7 +308,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
       left: positions.current[key] * step,
       behavior: "smooth",
     });
-  };
+  }, []);
 
   const getCardKey = (item, idx) => {
     if (!item || typeof item !== "object") return `product-${idx}`;
