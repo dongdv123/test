@@ -249,16 +249,12 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     return mapped.length ? mapped : baseNavLinks;
   }, [shopifyCollections]);
 
-  const ensureMinimumItems = (items, fallback, min) => {
-    if (items.length >= min) return items;
-    const pool = fallback && fallback.length ? fallback : [];
-    const result = [...items];
-    let i = 0;
-    while (result.length < min && pool.length) {
-      result.push(pool[i % pool.length]);
-      i++;
+  const ensureItems = (items, fallback, limit) => {
+    if (items.length) return items;
+    if (fallback && fallback.length) {
+      return typeof limit === "number" ? fallback.slice(0, limit) : fallback;
     }
-    return result.length ? result : pool.slice(0, min);
+    return [];
   };
 
   const derivedNewItems = normalizedProducts.slice(0, MIN_SECTION_ITEMS);
@@ -271,16 +267,16 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
   const derivedTrendProducts = normalizedProducts.slice(trendSliceStart, trendSliceEnd);
   const derivedRecentItems = normalizedProducts.slice(trendSliceEnd);
 
-  const newItems = ensureMinimumItems(derivedNewItems, fallbackNewItems, MIN_SECTION_ITEMS);
-  const bestItems = ensureMinimumItems(derivedBestItems, fallbackBestItems, MIN_SECTION_ITEMS);
-  const recentItems = ensureMinimumItems(derivedRecentItems, fallbackRecentItems, MIN_SECTION_ITEMS);
+  const newItems = ensureItems(derivedNewItems, fallbackNewItems, MIN_SECTION_ITEMS);
+  const bestItems = ensureItems(derivedBestItems, fallbackBestItems, MIN_SECTION_ITEMS);
+  const recentItems = ensureItems(derivedRecentItems, fallbackRecentItems, MIN_SECTION_ITEMS);
   const trendCatalog = useMemo(() => {
     const catalog = {};
     trendTabs.forEach((tab, index) => {
       const start = index * TREND_ITEMS_PER_TAB;
       const slice = derivedTrendProducts.slice(start, start + TREND_ITEMS_PER_TAB);
       const fallbackItems = fallbackTrendCatalog[tab] || fallbackTrendingItems;
-      catalog[tab] = ensureMinimumItems(slice, fallbackItems, TREND_ITEMS_PER_TAB);
+      catalog[tab] = ensureItems(slice, fallbackItems, TREND_ITEMS_PER_TAB);
     });
     return catalog;
   }, [derivedTrendProducts]);
@@ -313,9 +309,20 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     });
   };
 
+  const getCardKey = (item, idx) => {
+    if (!item || typeof item !== "object") return `product-${idx}`;
+    const identifier = item.id || item.handle || item.href || item.title;
+    return `product-${identifier || idx}`;
+  };
+
   const renderProductCard = (item, idx = 0, variant = "simple") => (
-    <ProductCard product={item} index={idx} variant={variant} />
+    <ProductCard key={getCardKey(item, idx)} product={item} index={idx} variant={variant} />
   );
+
+  const hasMultipleSlides = (items, minVisible) => {
+    if (!items || !items.length) return false;
+    return items.length > minVisible;
+  };
 
   return (
     <Layout navItems={navItems}>
@@ -415,13 +422,13 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
       <section className="section-shell slider-full">
         <h2 className="section-head">New for you</h2>
         <div className="slider-shell">
-          <button className="slider-nav prev" onClick={() => slide("new", -1)}>
+          <button className="slider-nav prev" disabled={!hasMultipleSlides(newItems, 4)} onClick={() => slide("new", -1)}>
             ‹
           </button>
           <div className="slider-track" ref={registerTrack("new")}>
             {newItems.map((item, idx) => renderProductCard(item, idx, "simple"))}
           </div>
-          <button className="slider-nav next" onClick={() => slide("new", 1)}>
+          <button className="slider-nav next" disabled={!hasMultipleSlides(newItems, 4)} onClick={() => slide("new", 1)}>
             ›
           </button>
         </div>
@@ -449,13 +456,13 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
       <section className="section-shell slider-full">
         <h2 className="section-head">Best-selling gifts</h2>
         <div className="slider-shell">
-          <button className="slider-nav prev" onClick={() => slide("best", -1)}>
+          <button className="slider-nav prev" disabled={!hasMultipleSlides(bestItems, 4)} onClick={() => slide("best", -1)}>
             ‹
           </button>
           <div className="slider-track" ref={registerTrack("best")}>
             {bestItems.map((item, idx) => renderProductCard(item, idx, "simple"))}
           </div>
-          <button className="slider-nav next" onClick={() => slide("best", 1)}>
+          <button className="slider-nav next" disabled={!hasMultipleSlides(bestItems, 4)} onClick={() => slide("best", 1)}>
             ›
           </button>
         </div>
@@ -525,13 +532,13 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
           <a href="#">see browsing history →</a>
         </div>
         <div className="slider-shell">
-          <button className="slider-nav prev" onClick={() => slide("recent", -1)}>
+          <button className="slider-nav prev" disabled={!hasMultipleSlides(recentItems, 4)} onClick={() => slide("recent", -1)}>
             ‹
           </button>
           <div className="slider-track" ref={registerTrack("recent")}>
             {recentItems.map((item, idx) => renderProductCard(item, idx, "simple"))}
           </div>
-          <button className="slider-nav next" onClick={() => slide("recent", 1)}>
+          <button className="slider-nav next" disabled={!hasMultipleSlides(recentItems, 4)} onClick={() => slide("recent", 1)}>
             ›
           </button>
         </div>
@@ -574,7 +581,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
       </section>
 
       <section className="section-shell">
-        <div className="container">
+        <div>
           <div className="shop-grid">
             {shopColumns.map((column) => (
               <div className="shop-card" key={column.title}>

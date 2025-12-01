@@ -1,34 +1,20 @@
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
+import { useWishlist } from "../context/WishlistContext";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { fetchShopifyCollections } from "../lib/shopify";
 import { mapCollectionsToNav } from "../lib/navUtils";
 
-const mockWishlist = [
-  {
-    id: "wish-1",
-    title: "Magic 101 Show & Class",
-    price: "840,000 VND",
-    img: "https://images.uncommongoods.com/product/56697/56697_1_640px.jpg",
-    handle: "magic-101",
-  },
-  {
-    id: "wish-2",
-    title: "DIY Hot Sauce Workshop",
-    price: "2,340,000 VND",
-    img: "https://images.uncommongoods.com/product/56858/56858_1_640px.jpg",
-    handle: "diy-hot-sauce",
-  },
-];
-
 export default function WishlistPage({ navItems }) {
+  const { items } = useWishlist();
+
   return (
     <Layout navItems={navItems}>
       <section className="section-shell">
         <h1 className="section-head">Your wishlist</h1>
-        {mockWishlist.length ? (
+        {items.length ? (
           <div className="collection-grid">
-            {mockWishlist.map((item, idx) => (
+            {items.map((item, idx) => (
               <ProductCard key={item.id} product={item} index={idx} variant="full" />
             ))}
           </div>

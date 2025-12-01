@@ -1,11 +1,13 @@
 import Link from "next/link";
 import Layout from "../../components/Layout";
 import ProductCard from "../../components/ProductCard";
+import WishlistButton from "../../components/WishlistButton";
 import { fetchProductByHandle, fetchShopifyCollections } from "../../lib/shopify";
 import { formatPrice } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { mapCollectionsToNav } from "../../lib/navUtils";
 import { useMemo, useState } from "react";
+import { useCart } from "../../context/CartContext";
 
 const formatPriceRange = (product) => {
   const min = Number(product.priceRange?.min?.amount);
@@ -59,9 +61,32 @@ export default function ProductDetailPage({ product, navItems }) {
     );
   }, [product.variants, selectedOptions]);
 
-  const displayPrice = activeVariant?.price
-    ? formatPrice(Number(activeVariant.price), activeVariant.currency_code || "USD")
-    : priceText;
+  const currency =
+    activeVariant?.currency_code ||
+    product.priceRange?.min?.currencyCode ||
+    product.priceRange?.max?.currencyCode ||
+    "USD";
+  const displayPrice = activeVariant?.price ? formatPrice(Number(activeVariant.price), currency) : priceText;
+  const { addItem, items: cartItems } = useCart();
+
+  const handleAddToCart = () => {
+    const unitPrice = Number(activeVariant?.price ?? product.priceRange?.min?.amount ?? 0);
+    addItem(
+      {
+        id: activeVariant?.id || product.id,
+        title: product.title,
+        handle: product.handle,
+        image: activeImage,
+        unitPrice,
+        priceFormatted: formatPrice(unitPrice || 0, currency),
+        variantTitle: activeVariant?.title || null,
+      },
+      quantity,
+    );
+    setShowDrawer(true);
+  };
+
+  const lastCartItem = cartItems[cartItems.length - 1];
 
   return (
     <Layout navItems={navItems}>
@@ -83,6 +108,7 @@ export default function ProductDetailPage({ product, navItems }) {
         <div className="product-gallery">
           {activeImage && (
             <div className="product-main-image">
+              <WishlistButton product={product} className="product-wishlist-button" />
               <img src={activeImage} alt={product.title} loading="lazy" />
             </div>
           )}
@@ -103,18 +129,8 @@ export default function ProductDetailPage({ product, navItems }) {
         </div>
 
         <div className="product-info">
-          <span className="collection-card-pill">
-            {product.productType || "experience"}
-          </span>
           <h1>{product.title}</h1>
           {displayPrice && <div className="product-price-large">{displayPrice}</div>}
-          {product.vendor && (
-            <div className="product-meta">by {product.vendor}</div>
-          )}
-          <p className="product-description">
-            {product.description || "Crafted by independent makers with limited batches available."}
-          </p>
-
           {product.options?.length ? (
             <div className="product-options">
               {product.options
@@ -163,10 +179,9 @@ export default function ProductDetailPage({ product, navItems }) {
           </div>
 
           <div className="product-cta">
-            <button className="btn btn-primary" onClick={() => setShowDrawer(true)}>
+            <button className="btn btn-primary" onClick={handleAddToCart}>
               add to cart
             </button>
-            <button className="btn-secondary">save to wish list</button>
           </div>
 
           <div className="product-support">
@@ -204,12 +219,12 @@ export default function ProductDetailPage({ product, navItems }) {
       </section>
 
       {product.relatedProducts?.length ? (
-        <section className="section-shell">
+        <section>
           <div className="container">
             <h2 className="section-head">More items to consider</h2>
             <div className="collection-grid">
               {product.relatedProducts.map((related, idx) => (
-                <ProductCard key={related.id} product={related} index={idx} variant="full" />
+                <ProductCard key={related.id} product={related} index={idx} variant="flat" />
               ))}
             </div>
           </div>
@@ -224,21 +239,25 @@ export default function ProductDetailPage({ product, navItems }) {
           </button>
         </div>
         <div className="cart-drawer-body">
-          <div className="cart-item">
-            <img src={product.img || images[0]} alt={product.title} />
-            <div>
-              <div className="cart-item-title">{product.title}</div>
-              {displayPrice && (
-                <div className="cart-item-price">
-                  {displayPrice} · Qty {quantity}
+          {lastCartItem ? (
+            <>
+              <div className="cart-item">
+                <img src={lastCartItem.image} alt={lastCartItem.title} />
+                <div>
+                  <div className="cart-item-title">{lastCartItem.title}</div>
+                  <div className="cart-item-price">
+                    {formatPrice(lastCartItem.unitPrice)} · Qty {lastCartItem.quantity}
+                  </div>
+                  {lastCartItem.variantTitle && <div className="cart-item-variant">{lastCartItem.variantTitle}</div>}
                 </div>
-              )}
-              {activeVariant?.title && <div className="cart-item-variant">{activeVariant.title}</div>}
-            </div>
-          </div>
-          <Link href="/checkout" className="btn btn-primary drawer-checkout">
-            proceed to checkout
-          </Link>
+              </div>
+              <Link href="/cart" className="btn btn-primary drawer-checkout">
+                view cart
+              </Link>
+            </>
+          ) : (
+            <p>Your cart is empty.</p>
+          )}
         </div>
       </div>
     </Layout>

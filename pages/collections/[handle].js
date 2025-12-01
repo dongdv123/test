@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Layout from "../../components/Layout";
+import WishlistButton from "../../components/WishlistButton";
 import { fetchCollectionByHandle, fetchShopifyCollections } from "../../lib/shopify";
 import { normalizeProduct } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
@@ -28,8 +29,13 @@ const badgePresets = [
   },
 ];
 
+const COLLECTION_PRODUCT_LIMIT = 4;
+
 export default function CollectionPage({ collection, navItems }) {
-  const products = (collection?.products || []).map(normalizeProduct).filter(Boolean);
+  const products = (collection?.products || [])
+    .map(normalizeProduct)
+    .filter(Boolean)
+    .slice(0, COLLECTION_PRODUCT_LIMIT);
 
   return (
     <Layout navItems={navItems}>
@@ -49,12 +55,10 @@ export default function CollectionPage({ collection, navItems }) {
             {products.map((product, index) => {
               const defaults = badgePresets[index % badgePresets.length];
               return (
-                <article className="collection-product-card" key={product.id || product.title}>
+                <article className="collection-product-card collection-card-flat" key={product.id || product.title}>
                   <div className="collection-card-media">
                     <span className="collection-badge-top">{defaults.top}</span>
-                    <button className="wishlist-btn" aria-label="Add to wishlist">
-                      ♡
-                    </button>
+                    <WishlistButton product={product} />
                     <img src={product.img} alt={product.title} loading="lazy" />
                   </div>
                   <div className="collection-card-body">

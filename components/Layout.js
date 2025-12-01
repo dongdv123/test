@@ -1,9 +1,18 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { useSiteChrome } from "../hooks/useSiteChrome";
 import { useRouteLoading } from "../hooks/useRouteLoading";
+import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import AuthModal from "./AuthModal";
 import RouteSkeleton from "./RouteSkeleton";
+
+const keepShoppingFor = ["golf", "cat", "puzzle", "advent calendar", "tea advent calendar"];
+const trendingSearches = ["advent calendar", "golf", "puzzle", "emotional support desk pets", "cat"];
+const popularSearches = ["advent calendar", "golf", "puzzle", "cat"];
 
 export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClick, children }) {
   const router = useRouter();
@@ -12,7 +21,43 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
     onNavClick,
   });
   const { isLoading: routeLoading, targetRoute } = useRouteLoading({ delay: 150, minVisible: 300 });
+  const { items: wishlistItems } = useWishlist();
+  const { items: cartItems } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
+  const wishlistCount = wishlistItems.length;
+  const hasWishlistItems = wishlistCount > 0;
+  const wishlistAriaLabel = hasWishlistItems ? `wish list (${wishlistCount})` : "wish list";
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartBadgeCount = cartCount > 0 ? cartCount : undefined;
   const skeletonPath = targetRoute || router?.asPath || "/";
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    const body = document.body;
+    body.classList.toggle("search-overlay-open", mobileSearchOpen);
+    if (!mobileSearchOpen) {
+      setMobileSearchQuery("");
+    }
+    return () => body.classList.remove("search-overlay-open");
+  }, [mobileSearchOpen]);
+
+  const closeMobileSearch = () => setMobileSearchOpen(false);
+  const closeAuthModal = () => setAuthModalOpen(false);
+  const openAuthModal = (mode = "login") => {
+    setAuthMode(mode);
+    setAuthModalOpen(true);
+  };
+
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    const body = document.body;
+    body.classList.toggle("auth-modal-open", authModalOpen);
+    return () => body.classList.remove("auth-modal-open");
+  }, [authModalOpen]);
 
   const renderNavItem = (item) => {
     const key = item.id || item.title;
@@ -85,30 +130,39 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
                 </>
               )}
             </button>
-            <div className="logo">
-              <span>✶</span> uncommon goods
-            </div>
+            <Link href="/" className="logo" aria-label="Gikzo home" onClick={closeMenu}>
+              gikzo
+            </Link>
             <label className="search">
               <span style={{ color: "#0c8a68", fontSize: 20 }}>🔍</span>
               <input placeholder="search | gifts for mom who likes beer, books, and gardening" />
             </label>
             <div className="header-mobile-icons">
-              <button type="button" aria-label="favorites" className="mobile-icon-btn sparkle">
-                ✦
-              </button>
-              <button type="button" aria-label="search" className="mobile-icon-btn">
+              <button type="button" aria-label="search" className="mobile-icon-btn" onClick={() => setMobileSearchOpen(true)}>
                 🔍
               </button>
-              <a className="mobile-icon-btn cart-badge" data-count="3" href="#" aria-label="cart">
+              <Link className="mobile-icon-btn cart-badge" data-count={cartBadgeCount} href="/cart" aria-label="cart">
                 🛒
-              </a>
+              </Link>
             </div>
             <div className="header-icons">
-              <a className="header-icon" href="#">
-                <span aria-hidden="true">👤</span>
-                <span className="header-icon-label">sign in</span>
-              </a>
-              <Link className="header-icon" href="/wishlist">
+              {isAuthenticated ? (
+                <Link className="header-icon" href="/profile">
+                  <span aria-hidden="true">📇</span>
+                  <span className="header-icon-label">{user?.name || "profile"}</span>
+                </Link>
+              ) : (
+                <button type="button" className="header-icon" onClick={() => openAuthModal("login")}>
+                  <span aria-hidden="true">👤</span>
+                  <span className="header-icon-label">sign in</span>
+                </button>
+              )}
+              <Link
+                className="header-icon wishlist-link cart-badge"
+                href="/wishlist"
+                data-count={hasWishlistItems ? wishlistCount : undefined}
+                aria-label={wishlistAriaLabel}
+              >
                 <span aria-hidden="true">🤍</span>
                 <span className="header-icon-label">wish list</span>
               </Link>
@@ -116,19 +170,28 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
                 <span aria-hidden="true">🎁</span>
                 <span className="header-icon-label">gift finder</span>
               </a>
-              <a className="header-icon cart-badge" data-count="3" href="#">
+              <Link className="header-icon cart-badge" data-count={cartBadgeCount} href="/cart">
                 <span aria-hidden="true">🛒</span>
                 <span className="header-icon-label">cart</span>
-              </a>
+              </Link>
             </div>
           </div>
           <nav className="nav" id="primary-nav">
             <div className="nav-mobile-actions">
-              <a href="#" className="nav-mobile-action">
-                <span aria-hidden="true">👤</span> sign in
-              </a>
-              <Link href="/wishlist" className="nav-mobile-action">
+              {isAuthenticated ? (
+                <>
+                  <Link href="/profile" className="nav-mobile-action">
+                    <span aria-hidden="true">📇</span> profile
+                  </Link>
+                </>
+              ) : (
+                <button type="button" className="nav-mobile-action" onClick={() => openAuthModal("login")}>
+                  <span aria-hidden="true">👤</span> sign in
+                </button>
+              )}
+              <Link href="/wishlist" className="nav-mobile-action wishlist-link">
                 <span aria-hidden="true">🤍</span> wish list
+                {hasWishlistItems && <span className="wishlist-count">{wishlistCount}</span>}
               </Link>
               <a href="#" className="nav-mobile-action">
                 <span aria-hidden="true">🎁</span> gift finder
@@ -138,6 +201,72 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
           </nav>
         </div>
       </header>
+
+      {mobileSearchOpen && (
+        <div className="mobile-search-overlay" role="dialog" aria-modal="true">
+          <div className="mobile-search-panel">
+            <form
+              className="mobile-search-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                closeMobileSearch();
+              }}
+            >
+              <div className="mobile-search-input">
+                <div className="mobile-search-input-row">
+                  <span aria-hidden="true">🔍</span>
+                  <textarea
+                    rows={2}
+                    placeholder="geeky husband, budget is $100"
+                    value={mobileSearchQuery}
+                    onChange={(event) => setMobileSearchQuery(event.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <button type="button" className="mobile-search-clear" onClick={() => setMobileSearchQuery("")}>
+                  clear
+                </button>
+              </div>
+              <button type="button" className="mobile-search-close" onClick={closeMobileSearch} aria-label="Close search">
+                ✕
+              </button>
+            </form>
+            <div className="mobile-search-body">
+              <section className="mobile-search-section">
+                <p className="mobile-search-heading">KEEP SHOPPING FOR</p>
+                <ul>
+                  {keepShoppingFor.map((item) => (
+                    <li key={`keep-${item}`}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+              <div className="mobile-search-columns">
+                <section className="mobile-search-section">
+                  <p className="mobile-search-heading">TRENDING</p>
+                  <ul>
+                    {trendingSearches.map((item) => (
+                      <li key={`trend-${item}`}>
+                        <span aria-hidden="true" className="mobile-search-trend-icon">
+                          📈
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+                <section className="mobile-search-section">
+                  <p className="mobile-search-heading">MOST POPULAR</p>
+                  <ul>
+                    {popularSearches.map((item) => (
+                      <li key={`popular-${item}`}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main aria-busy={routeLoading}>
         {routeLoading ? <RouteSkeleton pathname={skeletonPath} /> : children}
@@ -176,7 +305,14 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
         <p className="footer-bottom">
           Shipping to: 🇻🇳 · change · ©2025 Uncommon Goods™ LLC · 888-365-0056 · Brooklyn, NY
         </p>
-      </footer>
+        </footer>
+
+      <AuthModal
+        open={authModalOpen}
+        mode={authMode}
+        onClose={closeAuthModal}
+        onSwitch={setAuthMode}
+      />
     </>
   );
 }

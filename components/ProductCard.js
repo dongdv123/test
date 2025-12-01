@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useProductCard } from "../hooks/useProductCard";
+import WishlistButton from "./WishlistButton";
 
 export default function ProductCard({ product, index = 0, variant = "simple" }) {
   const card = useProductCard(product, index);
@@ -29,13 +30,16 @@ export default function ProductCard({ product, index = 0, variant = "simple" }) 
     );
   }
 
+  const cardClasses = ["collection-product-card"];
+  if (variant === "flat") {
+    cardClasses.push("collection-card-flat");
+  }
+
   return (
-    <article className="collection-product-card">
+    <article className={cardClasses.join(" ")}>
       <div className="collection-card-media">
         <span className="collection-badge-top">{card.badgeTop}</span>
-        <button className="wishlist-btn" aria-label="Add to wishlist">
-          ♡
-        </button>
+        <WishlistButton product={card} />
         <img src={card.img} alt={card.title} loading="lazy" />
       </div>
       <div className="collection-card-body">
