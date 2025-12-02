@@ -17,7 +17,7 @@ const nextConfig = {
     } : false,
   },
   async headers() {
-    return [
+    const baseHeaders = [
       {
         source: "/:path*",
         headers: [
@@ -40,6 +40,41 @@ const nextConfig = {
         ],
       },
     ];
+
+    // Disable cache in development to prevent Chrome reload loop issues
+    // Only disable cache for HTML and API routes, not static assets (images, fonts, etc.)
+    if (process.env.NODE_ENV === "development") {
+      baseHeaders.push(
+        {
+          source: "/_next/static/:path*",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, max-age=31536000, immutable",
+            },
+          ],
+        },
+        {
+          source: "/:path*",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+            },
+            {
+              key: "Pragma",
+              value: "no-cache",
+            },
+            {
+              key: "Expires",
+              value: "0",
+            },
+          ],
+        }
+      );
+    }
+
+    return baseHeaders;
   },
 };
 

@@ -79,8 +79,9 @@ export default function AuthModal({ open, mode, onClose, onSwitch }) {
             />
           </label>
           {isLogin && (
-            <label className="auth-remember">
-              <input type="checkbox" /> Keep me signed in
+            <label className="auth-remember" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, whiteSpace: "nowrap" }}>
+              <input type="checkbox" style={{ margin: 0, flexShrink: 0 }} />
+              <span>Keep me signed in</span>
             </label>
           )}
           {error && <p className="auth-error">{error}</p>}

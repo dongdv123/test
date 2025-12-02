@@ -55,7 +55,17 @@ const mapCustomerToUser = (customer) => {
     email: customer.email,
     phone: customer.phone || "",
     memberSince: new Date(customer.createdAt).toLocaleString("en-US", { month: "long", year: "numeric" }),
-    address: customer.defaultAddress || null,
+    address: customer.defaultAddress
+      ? {
+          id: customer.defaultAddress.id,
+          address1: customer.defaultAddress.address1,
+          address2: customer.defaultAddress.address2 || "",
+          city: customer.defaultAddress.city,
+          province: customer.defaultAddress.province || "",
+          zip: customer.defaultAddress.zip || "",
+          country: customer.defaultAddress.country,
+        }
+      : null,
     orders,
   };
 };

@@ -259,6 +259,48 @@ const WishlistSkeleton = () => (
   </section>
 );
 
+const BundleBuilderSkeleton = () => (
+  <div className="bundle-builder-page skeleton-panel">
+    <div className="bundle-builder-header">
+      <SkeletonLine width="40%" height={36} className="mb-12" rounded={false} />
+      <SkeletonLine width="60%" height={18} />
+    </div>
+
+    <div className="bundle-builder-content">
+      <div className="bundle-selection-panel">
+        <div className="bundle-selection-header">
+          <SkeletonLine width="50%" height={24} className="mb-16" rounded={false} />
+        </div>
+        <div className="bundle-empty-state">
+          <SkeletonLine width="80%" />
+          <SkeletonLine width="60%" />
+        </div>
+        <div className="bundle-actions" style={{ marginTop: 20 }}>
+          <SkeletonLine width="100%" height={40} className="mb-12" rounded={false} />
+          <span className="skeleton-block btn" style={{ width: "100%", height: 44 }} aria-hidden="true" />
+        </div>
+      </div>
+
+      <div className="bundle-products-grid">
+        <SkeletonLine width="40%" height={28} className="mb-20" rounded={false} />
+        <div className="collection-grid">
+          {skeletonArray(8).map((_, idx) => (
+            <article className="collection-product-card skeleton-card" key={`bundle-skeleton-${idx}`}>
+              <span className="skeleton-block media" style={{ height: 200 }} />
+              <div className="collection-card-body">
+                <SkeletonLine width="30%" height={14} />
+                <SkeletonLine width="80%" height={20} rounded={false} />
+                <SkeletonLine width="50%" />
+                <SkeletonLine width="40%" />
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const DefaultSkeleton = () => (
   <section className="section-shell skeleton-panel">
     <SkeletonLine width="40%" height={36} className="mb-16" rounded={false} />
@@ -274,6 +316,7 @@ const matchers = [
   { test: (path) => path.startsWith("/collections/"), component: CollectionSkeleton },
   { test: (path) => path.startsWith("/checkout"), component: CheckoutSkeleton },
   { test: (path) => path.startsWith("/wishlist"), component: WishlistSkeleton },
+  { test: (path) => path.startsWith("/bundle-builder"), component: BundleBuilderSkeleton },
 ];
 
 const normalizePath = (pathname = "/") => {

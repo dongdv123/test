@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useMemo } from "react";
 import Layout from "../components/Layout";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/productFormatter";
@@ -9,6 +10,32 @@ import { navLinks as baseNavLinks } from "../lib/siteContent";
 export default function CartPage({ navItems }) {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
   const formattedSubtotal = formatPrice(subtotal || 0);
+
+  // Group items by bundle
+  const groupedItems = useMemo(() => {
+    const bundles = new Map();
+    const standalone = [];
+
+    items.forEach((item) => {
+      if (item.bundleId) {
+        if (!bundles.has(item.bundleId)) {
+          bundles.set(item.bundleId, {
+            bundleId: item.bundleId,
+            bundleName: item.bundleName || `Bundle ${item.bundleId}`,
+            items: [],
+          });
+        }
+        bundles.get(item.bundleId).items.push(item);
+      } else {
+        standalone.push(item);
+      }
+    });
+
+    return {
+      bundles: Array.from(bundles.values()),
+      standalone,
+    };
+  }, [items]);
 
   return (
     <Layout navItems={navItems}>
@@ -28,7 +55,59 @@ export default function CartPage({ navItems }) {
         ) : (
           <div className="cart-grid">
             <div className="cart-items">
-              {items.map((item) => (
+              {/* Display bundles */}
+              {groupedItems.bundles.map((bundle) => (
+                <div key={bundle.bundleId} className="cart-bundle-group">
+                  <div className="cart-bundle-header">
+                    <h3 className="cart-bundle-name">{bundle.bundleName}</h3>
+                    <button
+                      type="button"
+                      className="cart-bundle-remove"
+                      onClick={() => {
+                        // Remove all items in bundle
+                        bundle.items.forEach((item) => removeItem(item.id));
+                      }}
+                      aria-label={`Remove ${bundle.bundleName}`}
+                    >
+                      Remove bundle
+                    </button>
+                  </div>
+                  {bundle.items.map((item) => (
+                    <article className="cart-row cart-bundle-item" key={item.id}>
+                      <button
+                        type="button"
+                        className="cart-remove absolute"
+                        aria-label={`Remove ${item.title}`}
+                        onClick={() => removeItem(item.id)}
+                      >
+                        ✕
+                      </button>
+                      <img src={item.image} alt={item.title} />
+                      <div>
+                        <Link href={item.handle ? `/products/${item.handle}` : "#"} className="cart-item-title">
+                          {item.title}
+                        </Link>
+                        {item.variantTitle && <div className="cart-item-variant">{item.variantTitle}</div>}
+                        <div className="cart-item-meta">
+                          <span>{item.priceFormatted || formatPrice(item.unitPrice)}</span>
+                          <div className="cart-quantity-control">
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                              −
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ))}
+
+              {/* Display standalone items */}
+              {groupedItems.standalone.map((item) => (
                 <article className="cart-row" key={item.id}>
                   <button
                     type="button"

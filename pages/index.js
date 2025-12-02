@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
@@ -234,13 +235,50 @@ const normalizeCollection = (collection) => {
 };
 
 export default function Home({ shopifyProducts = [], shopifyCollections = [] }) {
+  const router = useRouter();
   const trackRefs = useRef({});
   const positions = useRef({});
   const [activeTrend, setActiveTrend] = useState(trendTabs[0]);
+  const searchQuery = router.query.search || "";
+  
   const normalizedProducts = useMemo(
     () => (shopifyProducts || []).map(normalizeProduct).filter(Boolean),
     [shopifyProducts],
   );
+
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) return normalizedProducts;
+    
+    const query = searchQuery.toLowerCase().trim();
+    const searchTerms = query.split(/\s+/);
+    
+    return normalizedProducts.filter((product) => {
+      const titleMatch = product.title?.toLowerCase().includes(query);
+      const tagsMatch = product.tags?.some((tag) => {
+        const normalizedTag = tag.toLowerCase().replace(/-/g, " ");
+        return searchTerms.some((term) => normalizedTag.includes(term) || term.includes(normalizedTag));
+      });
+      const productTypeMatch = product.productType?.toLowerCase().includes(query);
+      
+      return titleMatch || tagsMatch || productTypeMatch;
+    });
+  }, [normalizedProducts, searchQuery]);
+
+  // Extract unique tags from filtered products for tabs
+  const availableTags = useMemo(() => {
+    const tagSet = new Set();
+    filteredProducts.forEach((product) => {
+      if (product.tags && Array.isArray(product.tags)) {
+        product.tags.forEach((tag) => {
+          if (tag) tagSet.add(tag.toLowerCase().replace(/-/g, " "));
+        });
+      }
+    });
+    return Array.from(tagSet).sort().slice(0, 10); // Limit to 10 most common tags
+  }, [filteredProducts]);
+
+  const [activeFilterTab, setActiveFilterTab] = useState("all");
   const normalizedCollections = useMemo(
     () => (shopifyCollections || []).map(normalizeCollection).filter(Boolean),
     [shopifyCollections],
@@ -324,6 +362,71 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     if (!items || !items.length) return false;
     return items.length > minVisible;
   };
+
+  // Filter products by active tab
+  const productsToDisplay = useMemo(() => {
+    if (activeFilterTab === "all") return filteredProducts;
+    return filteredProducts.filter((product) => {
+      const normalizedTag = activeFilterTab.toLowerCase().replace(/\s+/g, "-");
+      return product.tags?.some((tag) => tag.toLowerCase() === normalizedTag);
+    });
+  }, [filteredProducts, activeFilterTab]);
+
+  // Show search results if there's a search query
+  if (searchQuery) {
+    return (
+      <>
+        <Head>
+          <title>Search: {searchQuery} | Gikzo</title>
+          <meta name="description" content={`Search results for ${searchQuery} at Gikzo`} />
+        </Head>
+        <Layout navItems={navItems}>
+          <section className="section-shell">
+            <div>
+              <h1 className="section-head">Search Results: {searchQuery}</h1>
+              
+              {availableTags.length > 0 && (
+                <div className="search-filter-tabs">
+                  <button
+                    type="button"
+                    className={`search-filter-tab ${activeFilterTab === "all" ? "active" : ""}`}
+                    onClick={() => setActiveFilterTab("all")}
+                  >
+                    All ({filteredProducts.length})
+                  </button>
+                  {availableTags.map((tag) => {
+                    const count = filteredProducts.filter((p) =>
+                      p.tags?.some((t) => t.toLowerCase().replace(/-/g, " ") === tag)
+                    ).length;
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`search-filter-tab ${activeFilterTab === tag ? "active" : ""}`}
+                        onClick={() => setActiveFilterTab(tag)}
+                      >
+                        {tag} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {productsToDisplay.length > 0 ? (
+                <div className="collection-grid">
+                  {productsToDisplay.map((product, index) => (
+                    <ProductCard key={product.id || product.handle || index} product={product} index={index} variant="flat" />
+                  ))}
+                </div>
+              ) : (
+                <p className="collection-empty">No products found for "{searchQuery}"</p>
+              )}
+            </div>
+          </section>
+        </Layout>
+      </>
+    );
+  }
 
   return (
     <>

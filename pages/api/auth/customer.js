@@ -11,7 +11,9 @@ const QUERY = `
       phone
       createdAt
       defaultAddress {
+        id
         address1
+        address2
         city
         province
         zip

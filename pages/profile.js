@@ -1,12 +1,23 @@
 import Layout from "../components/Layout";
 import Link from "next/link";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { fetchShopifyCollections } from "../lib/shopify";
 import { mapCollectionsToNav } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
 export default function ProfilePage({ navItems }) {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, isAuthenticated, loading, logout, token, refreshProfile } = useAuth();
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    address1: "",
+    address2: "",
+    city: "",
+    province: "",
+    zip: "",
+    country: "",
+  });
+  const [addressSubmitting, setAddressSubmitting] = useState(false);
 
   if (loading) {
     return (
@@ -78,10 +89,151 @@ export default function ProfilePage({ navItems }) {
             ) : (
               <p>No primary address on file.</p>
             )}
-            <button type="button" className="btn-secondary">
-              Edit saved addresses
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                if (user.address) {
+                  setAddressForm({
+                    address1: user.address.address1 || "",
+                    address2: user.address.address2 || "",
+                    city: user.address.city || "",
+                    province: user.address.province || "",
+                    zip: user.address.zip || "",
+                    country: user.address.country || "",
+                  });
+                }
+                setAddressModalOpen(true);
+              }}
+            >
+              {user.address ? "Edit saved addresses" : "Add address"}
             </button>
           </section>
+
+          {addressModalOpen && (
+            <div
+              className="auth-modal-backdrop"
+              role="dialog"
+              aria-modal="true"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setAddressModalOpen(false);
+              }}
+            >
+              <div className="auth-modal">
+                <div className="auth-modal-header">
+                  <h2>{user.address ? "Edit Address" : "Add Address"}</h2>
+                  <button
+                    type="button"
+                    className="auth-close-btn"
+                    onClick={() => setAddressModalOpen(false)}
+                    aria-label="Close dialog"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <form
+                  className="auth-form"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!addressForm.address1 || !addressForm.city || !addressForm.country) {
+                      alert("Please fill in all required fields");
+                      return;
+                    }
+                    setAddressSubmitting(true);
+                    try {
+                      const response = await fetch("/api/auth/update-address", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          token,
+                          address: addressForm,
+                          addressId: user.address?.id || null,
+                          setAsDefault: true,
+                        }),
+                      });
+
+                      const data = await response.json();
+                      if (!response.ok) {
+                        throw new Error(data.message || "Failed to update address");
+                      }
+
+                      // Refresh profile to get updated address
+                      await refreshProfile();
+                      setAddressModalOpen(false);
+                      setAddressForm({
+                        address1: "",
+                        address2: "",
+                        city: "",
+                        province: "",
+                        zip: "",
+                        country: "",
+                      });
+                    } catch (error) {
+                      console.error("Address update error:", error);
+                      alert(error.message || "Failed to update address. Please try again.");
+                    } finally {
+                      setAddressSubmitting(false);
+                    }
+                  }}
+                >
+                  <label>
+                    Address Line 1 *
+                    <input
+                      type="text"
+                      value={addressForm.address1}
+                      onChange={(e) => setAddressForm((prev) => ({ ...prev, address1: e.target.value }))}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Address Line 2
+                    <input
+                      type="text"
+                      value={addressForm.address2}
+                      onChange={(e) => setAddressForm((prev) => ({ ...prev, address2: e.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    City *
+                    <input
+                      type="text"
+                      value={addressForm.city}
+                      onChange={(e) => setAddressForm((prev) => ({ ...prev, city: e.target.value }))}
+                      required
+                    />
+                  </label>
+                  <label>
+                    State/Province
+                    <input
+                      type="text"
+                      value={addressForm.province}
+                      onChange={(e) => setAddressForm((prev) => ({ ...prev, province: e.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    ZIP/Postal Code
+                    <input
+                      type="text"
+                      value={addressForm.zip}
+                      onChange={(e) => setAddressForm((prev) => ({ ...prev, zip: e.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    Country *
+                    <input
+                      type="text"
+                      value={addressForm.country}
+                      onChange={(e) => setAddressForm((prev) => ({ ...prev, country: e.target.value }))}
+                      required
+                    />
+                  </label>
+                  <button type="submit" className="btn btn-primary" disabled={addressSubmitting}>
+                    {addressSubmitting ? "Saving..." : user.address ? "Update Address" : "Add Address"}
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
 
           <section className="profile-card profile-orders">
             <div className="profile-card-header">

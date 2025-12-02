@@ -168,10 +168,14 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
                 <span className="material-icons" aria-hidden="true">favorite_border</span>
                 <span className="header-icon-label">wish list</span>
               </Link>
-              <a className="header-icon" href="#">
+              <Link href="/gift-finder" className="header-icon">
                 <span className="material-icons" aria-hidden="true">card_giftcard</span>
                 <span className="header-icon-label">gift finder</span>
-              </a>
+              </Link>
+              <Link href="/bundle-builder" className="header-icon">
+                <span className="material-icons" aria-hidden="true">inventory_2</span>
+                <span className="header-icon-label">bundle builder</span>
+              </Link>
               <Link className="header-icon cart-badge" data-count={cartBadgeCount} href="/cart">
                 <span className="material-icons" aria-hidden="true">shopping_cart</span>
                 <span className="header-icon-label">cart</span>
@@ -193,9 +197,12 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
                 <span className="material-icons" aria-hidden="true">favorite_border</span> wish list
                 {hasWishlistItems && <span className="wishlist-count">{wishlistCount}</span>}
               </Link>
-              <a href="#" className="nav-mobile-action">
+              <Link href="/gift-finder" className="nav-mobile-action" onClick={closeMenu}>
                 <span className="material-icons" aria-hidden="true">card_giftcard</span> gift finder
-              </a>
+              </Link>
+              <Link href="/bundle-builder" className="nav-mobile-action" onClick={closeMenu}>
+                <span className="material-icons" aria-hidden="true">inventory_2</span> bundle builder
+              </Link>
             </div>
             <div className="nav-list">{computedNavItems.map(renderNavItem)}</div>
           </nav>
@@ -289,15 +296,24 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
             <ul>
               <li>New subscribers get a $5 promo code.</li>
               <li>
-                <input
-                  style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 10, width: "100%" }}
-                  placeholder="Email address"
-                />
-              </li>
-              <li>
-                <button className="btn btn-primary" style={{ padding: "12px 24px" }}>
-                  sign up
-                </button>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    // TODO: Add email subscription functionality
+                    alert("Email subscription coming soon!");
+                  }}
+                  style={{ display: "flex", gap: 8, width: "100%" }}
+                >
+                  <input
+                    type="email"
+                    style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 10, flex: 1 }}
+                    placeholder="Email address"
+                    required
+                  />
+                  <button type="submit" className="btn btn-primary" style={{ padding: "12px 24px", whiteSpace: "nowrap" }}>
+                    sign up
+                  </button>
+                </form>
               </li>
             </ul>
           </div>

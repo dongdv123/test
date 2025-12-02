@@ -7,7 +7,7 @@ import { fetchProductByHandle, fetchShopifyCollections } from "../../lib/shopify
 import { formatPrice } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { mapCollectionsToNav } from "../../lib/navUtils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 
 const formatPriceRange = (product) => {
@@ -78,6 +78,21 @@ export default function ProductDetailPage({ product, navItems }) {
     );
   }, [product.variants, selectedOptions]);
 
+  // Update active image when variant changes
+  useEffect(() => {
+    if (activeVariant?.image?.src) {
+      // Variant has its own image
+      setActiveImage(activeVariant.image.src);
+    } else if (images.length > 0) {
+      // Variant has no image, use first product image
+      // But only update if current image is not in the product images list
+      // (to avoid unnecessary updates when switching between variants without images)
+      if (!images.includes(activeImage)) {
+        setActiveImage(images[0]);
+      }
+    }
+  }, [activeVariant, images, activeImage]);
+
   const currency =
     activeVariant?.currency_code ||
     product.priceRange?.min?.currencyCode ||
@@ -86,11 +101,25 @@ export default function ProductDetailPage({ product, navItems }) {
   const displayPrice = activeVariant?.price ? formatPrice(Number(activeVariant.price), currency) : priceText;
   const { addItem, items: cartItems } = useCart();
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback(async () => {
+    if (!activeVariant?.id) {
+      console.error("Cannot add to cart: no active variant", { activeVariant, product });
+      alert("Please select a variant before adding to cart");
+      return;
+    }
+
     const unitPrice = Number(activeVariant?.price ?? product.priceRange?.min?.amount ?? 0);
-    addItem(
+    
+    console.log("Adding to cart:", {
+      variantId: activeVariant.id,
+      variant: activeVariant,
+      quantity,
+    });
+
+    await addItem(
       {
-        id: activeVariant?.id || product.id,
+        id: activeVariant.id,
+        variantId: activeVariant.id, // Shopify variant ID for API (should be base64 GID)
         title: product.title,
         handle: product.handle,
         image: activeImage,
@@ -193,21 +222,55 @@ export default function ProductDetailPage({ product, navItems }) {
                   <div key={option.name}>
                     <div className="option-label">{option.name}</div>
                     <div className="option-values">
-                      {option.values.map((value) => (
-                        <button
-                          key={value}
-                          type="button"
-                          className={selectedOptions[option.name] === value ? "active" : ""}
-                          onClick={() =>
-                            setSelectedOptions((prev) => ({
-                              ...prev,
-                              [option.name]: value,
-                            }))
-                          }
-                        >
-                          {value}
-                        </button>
-                      ))}
+                      {option.values.map((value) => {
+                        // Find variant that matches this option value
+                        // Try to find variant with this specific option value, considering other selected options
+                        let matchingVariant = null;
+                        
+                        // First, try to find variant with this option value AND other selected options
+                        const tempOptions = { ...selectedOptions, [option.name]: value };
+                        matchingVariant = product.variants?.find((variant) =>
+                          (variant.selectedOptions || []).every(
+                            (opt) => tempOptions[opt.name] === opt.value
+                          )
+                        );
+                        
+                        // If not found, try to find any variant with this option value (ignore other options)
+                        if (!matchingVariant) {
+                          matchingVariant = product.variants?.find((variant) => {
+                            const optionMatch = variant.selectedOptions?.find(
+                              (opt) => opt.name === option.name && opt.value === value
+                            );
+                            return optionMatch !== undefined;
+                          });
+                        }
+                        
+                        // Only show image if variant exists AND has an image
+                        const variantImage = matchingVariant?.image?.src;
+
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            className={selectedOptions[option.name] === value ? "active" : ""}
+                            onClick={() =>
+                              setSelectedOptions((prev) => ({
+                                ...prev,
+                                [option.name]: value,
+                              }))
+                            }
+                          >
+                            {variantImage ? (
+                              <span className="option-value-with-image">
+                                <img src={variantImage} alt={value} loading="lazy" />
+                                <span>{value}</span>
+                              </span>
+                            ) : (
+                              <span>{value}</span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
