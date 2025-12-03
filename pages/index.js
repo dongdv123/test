@@ -1,13 +1,14 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useSlider } from "../hooks/useSlider";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
-import { fetchShopifyProducts, fetchShopifyCollections } from "../lib/shopify";
+import { fetchShopifyProducts, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
 import { normalizeProduct } from "../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
-import { mapCollectionsToNav } from "../lib/navUtils";
+import { getNavItems } from "../lib/navUtils";
 
 const quickLinks = [
   {
@@ -234,10 +235,9 @@ const normalizeCollection = (collection) => {
   };
 };
 
-export default function Home({ shopifyProducts = [], shopifyCollections = [] }) {
+export default function Home({ shopifyProducts = [], shopifyCollections = [], shopifyMenuItems = [] }) {
   const router = useRouter();
-  const trackRefs = useRef({});
-  const positions = useRef({});
+  const { registerTrack, slide, hasMultipleSlides } = useSlider();
   const [activeTrend, setActiveTrend] = useState(trendTabs[0]);
   const searchQuery = router.query.search || "";
   
@@ -284,9 +284,8 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     [shopifyCollections],
   );
   const navItems = useMemo(() => {
-    const mapped = mapCollectionsToNav(shopifyCollections);
-    return mapped.length ? mapped : baseNavLinks;
-  }, [shopifyCollections]);
+    return getNavItems(shopifyMenuItems, shopifyCollections, baseNavLinks);
+  }, [shopifyCollections, shopifyMenuItems]);
 
   const ensureItems = (items, fallback, limit) => {
     if (items.length) return items;
@@ -320,34 +319,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
     return catalog;
   }, [derivedTrendProducts]);
 
-  const registerTrack = (key) => (el) => {
-    if (el) {
-      trackRefs.current[key] = el;
-    }
-  };
-
-  const slide = useCallback((key, direction) => {
-    const track = trackRefs.current[key];
-    if (!track || !track.children.length) return;
-
-    const cardWidth = track.children[0].getBoundingClientRect().width;
-    const computed = window.getComputedStyle(track);
-    const gap = parseFloat(computed.gap) || parseFloat(computed.columnGap) || 0;
-    const step = cardWidth + gap;
-    const visible = Math.max(1, Math.floor(track.clientWidth / step));
-    const maxIndex = Math.max(track.children.length - visible, 0);
-
-    if (!(key in positions.current)) positions.current[key] = 0;
-    positions.current[key] += direction;
-    if (positions.current[key] < 0) positions.current[key] = maxIndex;
-    if (positions.current[key] > maxIndex) positions.current[key] = 0;
-
-    track.scrollTo({
-      left: positions.current[key] * step,
-      behavior: "smooth",
-    });
-  }, []);
-
   const getCardKey = (item, idx) => {
     if (!item || typeof item !== "object") return `product-${idx}`;
     const identifier = item.id || item.handle || item.href || item.title;
@@ -357,11 +328,6 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
   const renderProductCard = (item, idx = 0, variant = "simple") => (
     <ProductCard key={getCardKey(item, idx)} product={item} index={idx} variant={variant} />
   );
-
-  const hasMultipleSlides = (items, minVisible) => {
-    if (!items || !items.length) return false;
-    return items.length > minVisible;
-  };
 
   // Filter products by active tab
   const productsToDisplay = useMemo(() => {
@@ -716,11 +682,19 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [] }) 
 
 export async function getServerSideProps() {
   try {
-    const [products, collections] = await Promise.all([fetchShopifyProducts(120), fetchShopifyCollections(12)]);
+    const [products, collections, menuItems] = await Promise.all([
+      fetchShopifyProducts(120),
+      fetchShopifyCollections(12),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
+    ]);
     return {
       props: {
         shopifyProducts: products,
         shopifyCollections: collections,
+        shopifyMenuItems: menuItems,
       },
     };
   } catch (error) {
@@ -729,6 +703,7 @@ export async function getServerSideProps() {
       props: {
         shopifyProducts: [],
         shopifyCollections: [],
+        shopifyMenuItems: [],
       },
     };
   }

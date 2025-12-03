@@ -2,10 +2,10 @@ import Head from "next/head";
 import Link from "next/link";
 import Layout from "../../components/Layout";
 import WishlistButton from "../../components/WishlistButton";
-import { fetchCollectionByHandle, fetchShopifyCollections } from "../../lib/shopify";
+import { fetchCollectionByHandle, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../../lib/shopify";
 import { normalizeProduct } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
-import { mapCollectionsToNav } from "../../lib/navUtils";
+import { getNavItems } from "../../lib/navUtils";
 
 const badgePresets = [
   {
@@ -109,19 +109,23 @@ export async function getServerSideProps({ params }) {
   }
 
   try {
-    const [collection, navCollections] = await Promise.all([
+    const [collection, navCollections, menuItems] = await Promise.all([
       fetchCollectionByHandle(handle, 48),
       fetchShopifyCollections(20),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
     ]);
     if (!collection) {
       return { notFound: true };
     }
-    const navItems = mapCollectionsToNav(navCollections);
+    const navItems = getNavItems(menuItems, navCollections, baseNavLinks);
 
     return {
       props: {
         collection,
-        navItems: navItems.length ? navItems : baseNavLinks,
+        navItems,
       },
     };
   } catch (error) {

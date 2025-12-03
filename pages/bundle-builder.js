@@ -3,10 +3,10 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
-import { fetchShopifyProducts, fetchShopifyCollections } from "../lib/shopify";
+import { fetchShopifyProducts, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
 import { normalizeProduct } from "../lib/productFormatter";
 import { useCart } from "../context/CartContext";
-import { mapCollectionsToNav } from "../lib/navUtils";
+import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
 const MAX_BUNDLE_ITEMS = 3;
@@ -252,15 +252,19 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
 
 export async function getServerSideProps() {
   try {
-    const [products, collections] = await Promise.all([
+    const [products, collections, menuItems] = await Promise.all([
       fetchShopifyProducts(50), // Fetch products for bundle builder
       fetchShopifyCollections(20),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
     ]);
-    const navItems = mapCollectionsToNav(collections);
+    const navItems = getNavItems(menuItems, collections, baseNavLinks);
     return {
       props: {
         shopifyProducts: products || [],
-        navItems: navItems.length ? navItems : baseNavLinks,
+        navItems,
       },
     };
   } catch (error) {

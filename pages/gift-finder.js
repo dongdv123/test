@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "../components/Layout";
-import { fetchAllProductTags, fetchShopifyCollections } from "../lib/shopify";
-import { mapCollectionsToNav } from "../lib/navUtils";
+import { fetchAllProductTags, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
 const recipients = [
@@ -152,15 +152,19 @@ export default function GiftFinderPage({ productTags = [], navItems = baseNavLin
 
 export async function getServerSideProps() {
   try {
-    const [tags, collections] = await Promise.all([
+    const [tags, collections, menuItems] = await Promise.all([
       fetchAllProductTags(250),
       fetchShopifyCollections(20),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
     ]);
-    const navItems = mapCollectionsToNav(collections);
+    const navItems = getNavItems(menuItems, collections, baseNavLinks);
     return {
       props: {
         productTags: tags || [],
-        navItems: navItems.length ? navItems : baseNavLinks,
+        navItems,
       },
     };
   } catch (error) {

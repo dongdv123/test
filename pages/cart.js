@@ -3,12 +3,22 @@ import { useMemo } from "react";
 import Layout from "../components/Layout";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/productFormatter";
-import { fetchShopifyCollections } from "../lib/shopify";
-import { mapCollectionsToNav } from "../lib/navUtils";
+import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
 export default function CartPage({ navItems }) {
-  const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const { items, subtotal, updateQuantity, removeItem, checkoutUrl } = useCart();
+  
+  const handleCheckout = (e) => {
+    e.preventDefault();
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+    } else {
+      // Fallback to /checkout if checkoutUrl not available
+      window.location.href = "/checkout";
+    }
+  };
   const formattedSubtotal = formatPrice(subtotal || 0);
 
   // Group items by bundle
@@ -154,9 +164,15 @@ export default function CartPage({ navItems }) {
                 <span>Total</span>
                 <span>{formattedSubtotal}</span>
               </div>
-              <Link href="/checkout" className="btn btn-primary" style={{ width: "100%", textAlign: "center" }}>
+              <button 
+                type="button"
+                onClick={handleCheckout}
+                className="btn btn-primary" 
+                style={{ width: "100%", textAlign: "center" }}
+                disabled={!checkoutUrl}
+              >
                 Proceed to checkout
-              </Link>
+              </button>
             </aside>
           </div>
         )}
@@ -167,11 +183,17 @@ export default function CartPage({ navItems }) {
 
 export async function getServerSideProps() {
   try {
-    const collections = await fetchShopifyCollections(20);
-    const navItems = mapCollectionsToNav(collections);
+    const [collections, menuItems] = await Promise.all([
+      fetchShopifyCollections(20),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
+    ]);
+    const navItems = getNavItems(menuItems, collections, baseNavLinks);
     return {
       props: {
-        navItems: navItems.length ? navItems : baseNavLinks,
+        navItems,
       },
     };
   } catch (error) {

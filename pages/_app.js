@@ -1,4 +1,10 @@
 import "../styles/globals.css";
+import "../styles/product-detail.css";
+import "../styles/bundle-builder.css";
+import "../styles/cart.css";
+import "../styles/checkout.css";
+import "../styles/gift-finder.css";
+import "../styles/profile.css";
 import { AuthProvider } from "../context/AuthContext";
 import { WishlistProvider } from "../context/WishlistContext";
 import { CartProvider } from "../context/CartContext";

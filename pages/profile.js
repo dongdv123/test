@@ -2,8 +2,8 @@ import Layout from "../components/Layout";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { fetchShopifyCollections } from "../lib/shopify";
-import { mapCollectionsToNav } from "../lib/navUtils";
+import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
 export default function ProfilePage({ navItems }) {
@@ -273,11 +273,17 @@ export default function ProfilePage({ navItems }) {
 
 export async function getServerSideProps() {
   try {
-    const collections = await fetchShopifyCollections(20);
-    const navItems = mapCollectionsToNav(collections);
+    const [collections, menuItems] = await Promise.all([
+      fetchShopifyCollections(20),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
+    ]);
+    const navItems = getNavItems(menuItems, collections, baseNavLinks);
     return {
       props: {
-        navItems: navItems.length ? navItems : baseNavLinks,
+        navItems,
       },
     };
   } catch (error) {

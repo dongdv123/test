@@ -2,8 +2,8 @@ import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
 import { useWishlist } from "../context/WishlistContext";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
-import { fetchShopifyCollections } from "../lib/shopify";
-import { mapCollectionsToNav } from "../lib/navUtils";
+import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { getNavItems } from "../lib/navUtils";
 
 export default function WishlistPage({ navItems }) {
   const { items } = useWishlist();
@@ -28,11 +28,17 @@ export default function WishlistPage({ navItems }) {
 
 export async function getServerSideProps() {
   try {
-    const collections = await fetchShopifyCollections(20);
-    const navItems = mapCollectionsToNav(collections);
+    const [collections, menuItems] = await Promise.all([
+      fetchShopifyCollections(20),
+      fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
+        console.error("Failed to fetch menu:", err);
+        return [];
+      }),
+    ]);
+    const navItems = getNavItems(menuItems, collections, baseNavLinks);
     return {
       props: {
-        navItems: navItems.length ? navItems : baseNavLinks,
+        navItems,
       },
     };
   } catch (error) {

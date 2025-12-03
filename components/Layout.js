@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { useSiteChrome } from "../hooks/useSiteChrome";
 import { useRouteLoading } from "../hooks/useRouteLoading";
@@ -15,6 +15,80 @@ const RouteSkeleton = dynamic(() => import("./RouteSkeleton"), { ssr: false });
 const keepShoppingFor = ["golf", "cat", "puzzle", "advent calendar", "tea advent calendar"];
 const trendingSearches = ["advent calendar", "golf", "puzzle", "emotional support desk pets", "cat"];
 const popularSearches = ["advent calendar", "golf", "puzzle", "cat"];
+
+function NavItem({ item, isActive, onNavClick, closeMenu }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const hasSubItems = item.items && item.items.length > 0;
+
+  return (
+    <div 
+      className="nav-item-wrapper" 
+      onMouseEnter={() => hasSubItems && setIsHovered(true)} 
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {item.href ? (
+        <Link
+          href={item.href}
+          className={`nav-link ${isActive ? "active" : ""} ${hasSubItems ? "has-dropdown" : ""}`}
+          onClick={closeMenu}
+        >
+          {item.title}
+          {hasSubItems && <span className="nav-arrow">▼</span>}
+        </Link>
+      ) : typeof onNavClick === "function" ? (
+        <button
+          type="button"
+          className={`nav-link ${isActive ? "active" : ""} ${hasSubItems ? "has-dropdown" : ""}`}
+          disabled={item.disabled}
+          onClick={() => !item.disabled && onNavClick(item)}
+        >
+          {item.title}
+          {hasSubItems && <span className="nav-arrow">▼</span>}
+        </button>
+      ) : (
+        <span className={`nav-link ${hasSubItems ? "has-dropdown" : ""}`}>
+          {item.title}
+          {hasSubItems && <span className="nav-arrow">▼</span>}
+        </span>
+      )}
+      {hasSubItems && isHovered && (
+        <div 
+          className="nav-dropdown"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="nav-dropdown-content">
+            {item.items.map((subItem) => (
+              <div key={subItem.id || subItem.title} className="nav-dropdown-section">
+                {subItem.href ? (
+                  <Link href={subItem.href} className="nav-dropdown-link" onClick={closeMenu}>
+                    {subItem.title}
+                  </Link>
+                ) : (
+                  <span className="nav-dropdown-link">{subItem.title}</span>
+                )}
+                {subItem.items && subItem.items.length > 0 && (
+                  <div className="nav-dropdown-submenu">
+                    {subItem.items.map((subSubItem) => (
+                      <Link
+                        key={subSubItem.id || subSubItem.title}
+                        href={subSubItem.href || "#"}
+                        className="nav-dropdown-sublink"
+                        onClick={closeMenu}
+                      >
+                        {subSubItem.title}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClick, children }) {
   const router = useRouter();
@@ -34,8 +108,11 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
   const skeletonPath = targetRoute || router?.asPath || "/";
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
+  const [desktopSearchQuery, setDesktopSearchQuery] = useState("");
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
+  const searchWrapperRef = useRef(null);
 
   useEffect(() => {
     if (typeof document === "undefined") return undefined;
@@ -61,42 +138,33 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
     return () => body.classList.remove("auth-modal-open");
   }, [authModalOpen]);
 
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    if (!desktopSearchOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target)) {
+        setDesktopSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [desktopSearchOpen]);
+
   const renderNavItem = (item) => {
     const key = item.id || item.title;
     const isActive = activeNavId && key === activeNavId;
-
-    if (typeof onNavClick === "function" && !item.href) {
-      const disabled = item.disabled;
-      return (
-        <button
-          key={key}
-          type="button"
-          className={`nav-link ${isActive ? "active" : ""}`}
-          disabled={disabled}
-          onClick={() => !disabled && handleNavClick(item)}
-        >
-          {item.title}
-        </button>
-      );
-    }
-
-    if (item.href) {
-      return (
-        <Link
-          key={key}
-          href={item.href}
-          className={`nav-link ${isActive ? "active" : ""}`}
-          onClick={closeMenu}
-        >
-          {item.title}
-        </Link>
-      );
-    }
-
     return (
-      <span key={key} className="nav-link">
-        {item.title}
-      </span>
+      <NavItem
+        key={key}
+        item={item}
+        isActive={isActive}
+        onNavClick={handleNavClick}
+        closeMenu={closeMenu}
+      />
     );
   };
 
@@ -135,10 +203,129 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
             <Link href="/" className="logo" aria-label="Gikzo home" onClick={closeMenu}>
               gikzo
             </Link>
-            <label className="search">
-              <span className="material-icons" style={{ color: "#0c8a68", fontSize: 20 }}>search</span>
-              <input placeholder="search | gifts for mom who likes beer, books, and gardening" />
-            </label>
+            <div className="search-wrapper" ref={searchWrapperRef}>
+              <div className={`search ${desktopSearchOpen ? 'search-active' : ''}`} onClick={() => setDesktopSearchOpen(true)}>
+                <span className="material-icons search-icon" style={{ color: "#0c8a68", fontSize: 20 }}>search</span>
+                <div className="search-placeholder">
+                  {desktopSearchQuery || "search for products or for gift ideas..."}
+                </div>
+                {desktopSearchQuery && (
+                  <button
+                    type="button"
+                    className="search-clear"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDesktopSearchQuery("");
+                      setDesktopSearchOpen(true);
+                    }}
+                  >
+                    clear
+                  </button>
+                )}
+              </div>
+              {desktopSearchOpen && (
+                <div className="search-dropdown">
+                  <div className="search-dropdown-input-wrapper" onMouseDown={(e) => e.preventDefault()}>
+                    <span className="material-icons search-icon" style={{ color: "#0c8a68", fontSize: 20 }}>search</span>
+                    <input 
+                      className="search-dropdown-input"
+                      placeholder="search for products or for gift ideas..."
+                      value={desktopSearchQuery}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setDesktopSearchQuery(e.target.value);
+                      }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      autoFocus
+                    />
+                    {desktopSearchQuery && (
+                      <button
+                        type="button"
+                        className="search-clear"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDesktopSearchQuery("");
+                        }}
+                      >
+                        clear
+                      </button>
+                    )}
+                  </div>
+                  {desktopSearchQuery.trim() ? (
+                    <div className="search-suggestions">
+                      <p className="search-suggestion-label">Search results for "{desktopSearchQuery}"</p>
+                      <Link 
+                        href={`/search?q=${encodeURIComponent(desktopSearchQuery)}`}
+                        className="search-suggestion-item"
+                        onClick={() => setDesktopSearchOpen(false)}
+                      >
+                        <span className="material-icons">search</span>
+                        <span>Search for "{desktopSearchQuery}"</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="search-suggestions search-suggestions-columns">
+                      <section className="search-suggestion-section">
+                        <p className="search-suggestion-label">KEEP SHOPPING FOR</p>
+                        <div className="search-suggestion-items">
+                          {keepShoppingFor.map((item) => (
+                            <Link
+                              key={item}
+                              href={`/search?q=${encodeURIComponent(item)}`}
+                              className="search-suggestion-item"
+                              onClick={() => {
+                                setDesktopSearchOpen(false);
+                                setDesktopSearchQuery("");
+                              }}
+                            >
+                              {item}
+                            </Link>
+                          ))}
+                        </div>
+                      </section>
+                      <section className="search-suggestion-section">
+                        <p className="search-suggestion-label">TRENDING</p>
+                        <div className="search-suggestion-items">
+                          {trendingSearches.map((item) => (
+                            <Link
+                              key={item}
+                              href={`/search?q=${encodeURIComponent(item)}`}
+                              className="search-suggestion-item"
+                              onClick={() => {
+                                setDesktopSearchOpen(false);
+                                setDesktopSearchQuery("");
+                              }}
+                            >
+                              <span className="material-icons trending-icon">trending_up</span>
+                              <span>{item}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </section>
+                      <section className="search-suggestion-section">
+                        <p className="search-suggestion-label">MOST POPULAR</p>
+                        <div className="search-suggestion-items">
+                          {popularSearches.map((item) => (
+                            <Link
+                              key={item}
+                              href={`/search?q=${encodeURIComponent(item)}`}
+                              className="search-suggestion-item"
+                              onClick={() => {
+                                setDesktopSearchOpen(false);
+                                setDesktopSearchQuery("");
+                              }}
+                            >
+                              {item}
+                            </Link>
+                          ))}
+                        </div>
+                      </section>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <div className="header-mobile-icons">
               <button type="button" aria-label="search" className="mobile-icon-btn" onClick={() => setMobileSearchOpen(true)}>
                 <span className="material-icons">search</span>
