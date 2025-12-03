@@ -205,7 +205,7 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
             </Link>
             <div className="search-wrapper" ref={searchWrapperRef}>
               <div className={`search ${desktopSearchOpen ? 'search-active' : ''}`} onClick={() => setDesktopSearchOpen(true)}>
-                <span className="material-icons search-icon" style={{ color: "#0c8a68", fontSize: 20 }}>search</span>
+                <span className="material-icons search-icon" style={{ color: "#0c8a68", fontSize: 28 }}>search</span>
                 <div className="search-placeholder">
                   {desktopSearchQuery || "search for products or for gift ideas..."}
                 </div>
@@ -226,7 +226,7 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
               {desktopSearchOpen && (
                 <div className="search-dropdown">
                   <div className="search-dropdown-input-wrapper" onMouseDown={(e) => e.preventDefault()}>
-                    <span className="material-icons search-icon" style={{ color: "#0c8a68", fontSize: 20 }}>search</span>
+                    <span className="material-icons search-icon" style={{ color: "#0c8a68", fontSize: 28 }}>search</span>
                     <input 
                       className="search-dropdown-input"
                       placeholder="search for products or for gift ideas..."

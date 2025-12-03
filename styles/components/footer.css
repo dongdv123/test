@@ -1,0 +1,37 @@
+/* Footer Component */
+footer {
+  width: 100%;
+  background: #fff8e2;
+}
+
+.footer-top {
+  padding: 40px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.footer-col h4 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--stone);
+}
+
+.footer-bottom {
+  margin-top: 0;
+  background: #faefd4;
+  padding: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: #2c2c2c;
+}
+

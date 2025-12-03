@@ -118,9 +118,5 @@
   font-weight: 600;
 }
 
-@media (max-width: 640px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* Responsive styles moved to mobile.css */
 

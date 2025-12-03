@@ -204,3 +204,19 @@
   color: #65736c;
 }
 
+@media (max-width: 900px) {
+  .checkout-page {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .checkout-page {
+    width: calc(100% - 10px);
+    margin: 20px 5px;
+    padding: 0 5px;
+  }
+}
+

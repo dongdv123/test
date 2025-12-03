@@ -1,0 +1,141 @@
+/* Product Card Component */
+.product-card-body,
+.collection-product-card {
+  position: relative;
+  background: #fff;
+  border-radius: var(--card-radius);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.card-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.collection-card-flat {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Remove background for wishlist page */
+.section-shell .collection-grid .collection-product-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.collection-card-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.collection-card-media img {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75em;
+  display: block;
+}
+
+.collection-badge-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #0b6b44;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  font-size: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 2;
+}
+.wishlist-btn.active {
+  background: #0b6b44;
+  color: #fff;
+}
+
+.wishlist-btn:focus-visible {
+  outline: 2px solid #0b6b44;
+  outline-offset: 2px;
+}
+
+.collection-card-body {
+  padding: 20px 24px 26px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.collection-card-pill {
+  align-self: flex-start;
+  background: #d8f4ff;
+  color: #007b9e;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.collection-card-body h4 {
+  font-size: 17px;
+  line-height: 1.4;
+  color: #123325;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collection-price-row .price {
+  font-weight: 700;
+  color: #0a0f16;
+}
+
+.collection-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #0c865b;
+}
+
+.star-icons {
+  letter-spacing: 2px;
+}
+

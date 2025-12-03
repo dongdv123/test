@@ -34,6 +34,10 @@ const getGalleryImages = (product) => {
   const sources = [
     product.image?.src,
     ...(product.images || []).map((img) => img.src),
+    // Include variant images
+    ...(product.variants || [])
+      .map((variant) => variant.image?.src)
+      .filter(Boolean),
   ].filter(Boolean);
 
   // Remove duplicates
@@ -41,13 +45,22 @@ const getGalleryImages = (product) => {
 };
 
 export default function ProductDetailPage({ product, navItems }) {
-  const images = getGalleryImages(product);
+  // Get images including variant images - recalculate when product changes
+  const images = useMemo(() => getGalleryImages(product), [product]);
   const priceText = formatPriceRange(product);
   const [showDrawer, setShowDrawer] = useState(false);
-  const [activeImage, setActiveImage] = useState(images[0]);
+  const [activeImage, setActiveImage] = useState(() => images.length > 0 ? images[0] : null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [clickToNavigate, setClickToNavigate] = useState(true); // Bật/tắt click để chuyển ảnh
+  const [showZoomPopup, setShowZoomPopup] = useState(false); // Popup zoom toàn màn hình
+  const [popupTouchStart, setPopupTouchStart] = useState(null);
+  const [popupTouchEnd, setPopupTouchEnd] = useState(null);
   const [activeTab, setActiveTab] = useState('reviews');
   const [expandedSections, setExpandedSections] = useState({});
   const [showDeliveryTimeline, setShowDeliveryTimeline] = useState(false);
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('US');
   
   // Custom hooks
@@ -85,25 +98,247 @@ export default function ProductDetailPage({ product, navItems }) {
 
   // Update active image when variant changes (only if user hasn't manually selected)
   useEffect(() => {
-    // Skip auto-update if user manually selected an image
-    if (manualImageSelection) return;
+    // Skip if no images or user manually selected an image
+    if (images.length === 0 || manualImageSelection) return;
 
     if (activeVariant?.image?.src) {
-      // Variant has its own image
-      setActiveImage(activeVariant.image.src);
-    } else if (images.length > 0) {
+      // Variant has its own image - check if it exists in images array
+      // Normalize URLs for comparison (remove query params, trailing slashes, etc.)
+      const normalizeUrl = (url) => {
+        if (!url) return '';
+        try {
+          const urlObj = new URL(url);
+          return urlObj.origin + urlObj.pathname;
+        } catch {
+          return url.split('?')[0].replace(/\/$/, '');
+        }
+      };
+
+      const variantImageUrl = normalizeUrl(activeVariant.image.src);
+      
+      // Find matching image in gallery
+      const variantImageIndex = images.findIndex(img => {
+        const imgUrl = normalizeUrl(img);
+        return imgUrl === variantImageUrl || img === activeVariant.image.src;
+      });
+
+      if (variantImageIndex !== -1) {
+        // Image exists in gallery, use it
+        setActiveImageIndex(variantImageIndex);
+        setActiveImage(images[variantImageIndex]);
+      } else {
+        // Variant image not found in gallery - use first image
+        console.warn('Variant image not found in gallery:', activeVariant.image.src, 'Available images:', images);
+        setActiveImageIndex(0);
+        setActiveImage(images[0]);
+      }
+    } else {
       // Variant has no image, use first product image
       // But only update if current image is not in the product images list
-      if (!images.includes(activeImage)) {
+      if (!activeImage || !images.includes(activeImage)) {
+        setActiveImageIndex(0);
         setActiveImage(images[0]);
       }
     }
-  }, [activeVariant?.id, images]); // Remove activeImage from dependencies to avoid loops
+  }, [activeVariant?.id, activeVariant?.image?.src, images, manualImageSelection]); // Removed activeImage from dependencies to prevent loop
 
   // Reset manual selection flag when variant changes
   useEffect(() => {
     setManualImageSelection(false);
   }, [activeVariant?.id]);
+
+  // Initialize activeImage when images first load and validate activeImageIndex
+  useEffect(() => {
+    if (images.length === 0) {
+      setActiveImage(null);
+      setActiveImageIndex(0);
+      return;
+    }
+    
+    // If no active image or active image is not in the new images array, reset to first image
+    if (!activeImage || !images.includes(activeImage)) {
+      setActiveImage(images[0]);
+      setActiveImageIndex(0);
+      return;
+    }
+    
+    // Validate activeImageIndex is within bounds
+    if (activeImageIndex >= images.length) {
+      const correctIndex = images.indexOf(activeImage);
+      if (correctIndex !== -1) {
+        setActiveImageIndex(correctIndex);
+      } else {
+        setActiveImage(images[0]);
+        setActiveImageIndex(0);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images]); // Run when images array changes
+
+  // Sync activeImageIndex with activeImage (only when activeImage changes externally)
+  useEffect(() => {
+    if (!activeImage || images.length === 0) return;
+    const index = images.indexOf(activeImage);
+    if (index !== -1 && index !== activeImageIndex) {
+      setActiveImageIndex(index);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeImage]); // Only depend on activeImage to avoid loops - images and activeImageIndex are checked inside
+
+  // Handle swipe gestures
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    if (images.length === 0) return;
+    if (e.touches.length === 1) {
+      setTouchStart(e.touches[0].clientX);
+      setTouchEnd(null);
+    }
+  };
+
+  const onTouchMove = (e) => {
+    if (e.touches.length === 1) {
+      setTouchEnd(e.touches[0].clientX);
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (images.length === 0) {
+      setTouchStart(null);
+      setTouchEnd(null);
+      return;
+    }
+    
+    if (touchStart && touchEnd !== null) {
+      const distance = touchStart - touchEnd;
+      const isLeftSwipe = distance > minSwipeDistance;
+      const isRightSwipe = distance < -minSwipeDistance;
+
+      if (isLeftSwipe && activeImageIndex < images.length - 1) {
+        const nextIndex = activeImageIndex + 1;
+        setActiveImageIndex(nextIndex);
+        setActiveImage(images[nextIndex]);
+        setManualImageSelection(true);
+      }
+      if (isRightSwipe && activeImageIndex > 0) {
+        const prevIndex = activeImageIndex - 1;
+        setActiveImageIndex(prevIndex);
+        setActiveImage(images[prevIndex]);
+        setManualImageSelection(true);
+      }
+    }
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Handle click - navigate or open zoom popup based on clickToNavigate setting
+  const handleImageClick = (e) => {
+    if (images.length === 0) return;
+    
+    // Prevent click when swiping
+    if (touchStart && touchEnd && Math.abs(touchStart - touchEnd) > 10) {
+      return;
+    }
+    
+    // If clickToNavigate is enabled, navigate to next/previous image
+    if (clickToNavigate && images.length > 1) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const width = rect.width;
+      
+      // Click on left half -> previous image
+      if (clickX < width / 2 && activeImageIndex > 0) {
+        const prevIndex = activeImageIndex - 1;
+        setActiveImageIndex(prevIndex);
+        setActiveImage(images[prevIndex]);
+        setManualImageSelection(true);
+        return;
+      }
+      // Click on right half -> next image
+      if (clickX >= width / 2 && activeImageIndex < images.length - 1) {
+        const nextIndex = activeImageIndex + 1;
+        setActiveImageIndex(nextIndex);
+        setActiveImage(images[nextIndex]);
+        setManualImageSelection(true);
+        return;
+      }
+    } else {
+      // If clickToNavigate is disabled, open zoom popup
+      setShowZoomPopup(true);
+    }
+  };
+
+  // Close zoom popup
+  const closeZoomPopup = () => {
+    setShowZoomPopup(false);
+  };
+
+  // Handle swipe in popup
+  const onPopupTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      setPopupTouchStart(e.touches[0].clientX);
+      setPopupTouchEnd(null);
+    }
+  };
+
+  const onPopupTouchMove = (e) => {
+    if (e.touches.length === 1) {
+      setPopupTouchEnd(e.touches[0].clientX);
+    }
+  };
+
+  const onPopupTouchEnd = () => {
+    if (images.length === 0) {
+      setPopupTouchStart(null);
+      setPopupTouchEnd(null);
+      return;
+    }
+    
+    if (popupTouchStart && popupTouchEnd !== null) {
+      const distance = popupTouchStart - popupTouchEnd;
+      const isLeftSwipe = distance > minSwipeDistance;
+      const isRightSwipe = distance < -minSwipeDistance;
+
+      if (isLeftSwipe && activeImageIndex < images.length - 1) {
+        const nextIndex = activeImageIndex + 1;
+        setActiveImageIndex(nextIndex);
+        setActiveImage(images[nextIndex]);
+        setManualImageSelection(true);
+      }
+      if (isRightSwipe && activeImageIndex > 0) {
+        const prevIndex = activeImageIndex - 1;
+        setActiveImageIndex(prevIndex);
+        setActiveImage(images[prevIndex]);
+        setManualImageSelection(true);
+      }
+    }
+    setPopupTouchStart(null);
+    setPopupTouchEnd(null);
+  };
+
+  // Handle keyboard escape to close popup
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showZoomPopup) {
+        closeZoomPopup();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showZoomPopup]);
+
+  // Sticky CTA visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const ctaElement = document.querySelector('.product-cta-row');
+      if (ctaElement) {
+        const rect = ctaElement.getBoundingClientRect();
+        setShowStickyCTA(rect.bottom < 0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const currency =
     activeVariant?.currency_code ||
@@ -211,22 +446,127 @@ export default function ProductDetailPage({ product, navItems }) {
 
       <section className="product-hero">
         <div className="product-gallery">
-          {activeImage && (
-            <div className="product-main-image">
-              <WishlistButton product={product} className="product-wishlist-button" />
-              <img src={activeImage} alt={product.title} loading="lazy" />
+          {activeImage && images.length > 0 && (
+            <div 
+              className={`product-main-image-container ${clickToNavigate ? 'click-to-navigate' : ''}`}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onClick={handleImageClick}
+            >
+              <div className="product-main-image">
+                <WishlistButton product={product} className="product-wishlist-button" />
+                {images.length > 1 && (
+                  <div className="product-gallery-controls">
+                    <button
+                      type="button"
+                      className={`product-gallery-toggle-btn ${clickToNavigate ? 'active' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setClickToNavigate(!clickToNavigate);
+                      }}
+                      title={clickToNavigate ? "Click to navigate images (On)" : "Click to zoom image (Off)"}
+                      aria-label={clickToNavigate ? "Disable click to navigate" : "Enable click to navigate"}
+                    >
+                      <span className="material-icons">{clickToNavigate ? 'touch_app' : 'pan_tool'}</span>
+                      <span className="product-gallery-toggle-label">
+                        {clickToNavigate ? 'Click to navigate' : 'Click to zoom'}
+                      </span>
+                    </button>
+                  </div>
+                )}
+                <div className="product-gallery-slider-wrapper">
+                  <div 
+                    className="product-gallery-slider"
+                    style={{
+                      transform: `translateX(-${activeImageIndex * 100}%)`,
+                      transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                  >
+                    {images.map((src, index) => (
+                      <div 
+                        key={src}
+                        className="product-gallery-slide"
+                      >
+                        <div className="product-image-zoom-wrapper">
+                          <img 
+                            src={src} 
+                            alt={`${product.title} - Image ${index + 1}`}
+                            loading={index === 0 ? "eager" : "lazy"}
+                            decoding="async"
+                            className="product-main-image-img"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {images.length > 1 && (
+                <>
+                  <button
+                    className="product-gallery-nav product-gallery-prev"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (activeImageIndex > 0) {
+                        const prevIndex = activeImageIndex - 1;
+                        setActiveImageIndex(prevIndex);
+                        setActiveImage(images[prevIndex]);
+                        setManualImageSelection(true);
+                      }
+                    }}
+                    aria-label="Previous image"
+                    disabled={activeImageIndex === 0}
+                  >
+                    <span className="material-icons">chevron_left</span>
+                  </button>
+                  <button
+                    className="product-gallery-nav product-gallery-next"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (activeImageIndex < images.length - 1) {
+                        const nextIndex = activeImageIndex + 1;
+                        setActiveImageIndex(nextIndex);
+                        setActiveImage(images[nextIndex]);
+                        setManualImageSelection(true);
+                      }
+                    }}
+                    aria-label="Next image"
+                    disabled={activeImageIndex === images.length - 1}
+                  >
+                    <span className="material-icons">chevron_right</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+          {images.length > 1 && (
+            <div className="product-gallery-pagination">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`product-gallery-dot ${index === activeImageIndex ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveImageIndex(index);
+                    setActiveImage(images[index]);
+                    setManualImageSelection(true);
+                  }}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
             </div>
           )}
           {images.length > 1 && (
             <div className="product-thumbnails">
-              {images.map((src) => (
+              {images.map((src, index) => (
                 <button
                   key={src}
                   type="button"
-                  className={activeImage === src ? "active" : ""}
+                  className={activeImageIndex === index ? "active" : ""}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    setActiveImageIndex(index);
                     setActiveImage(src);
                     setManualImageSelection(true);
                   }}
@@ -240,6 +580,12 @@ export default function ProductDetailPage({ product, navItems }) {
 
         <div className="product-info">
           <h1>{product.title}</h1>
+          {/* Emotional Hook */}
+          <p className="product-hook">
+            {product.description 
+              ? product.description.split('.')[0] + '.' 
+              : "A perfect gift for plant lovers"}
+          </p>
           <div className="product-brand-rating">
             <div className="product-brand">Created by {product.vendor || 'Uncommon Goods'}</div>
             <div className="product-rating-summary">
@@ -266,7 +612,16 @@ export default function ProductDetailPage({ product, navItems }) {
               <span>Exclusive</span>
             </div>
           )}
-          {displayPrice && <div className="product-price-large">{displayPrice}</div>}
+          {/* Price with Urgency */}
+          {displayPrice && (
+            <div className="product-price-section">
+              <div className="product-price-large">{displayPrice}</div>
+              <div className="product-urgency">
+                <span className="urgency-text">Low stock</span>
+                <span className="urgency-viewers">12 people viewing this product</span>
+              </div>
+            </div>
+          )}
           {product.options?.length ? (
             <div className="product-options">
               {product.options
@@ -548,11 +903,23 @@ export default function ProductDetailPage({ product, navItems }) {
               </div>
             </div>
             <div className="product-cta">
-              <button className="btn btn-primary" onClick={handleAddToCart}>
+              <button className="btn btn-primary product-add-to-cart-btn" onClick={handleAddToCart}>
                 add to cart
               </button>
             </div>
           </div>
+
+          {/* Sticky CTA Bar */}
+          {showStickyCTA && (
+            <div className="product-sticky-cta">
+              <div className="product-sticky-cta-content">
+                <div className="product-sticky-price">{displayPrice}</div>
+                <button className="btn btn-primary product-sticky-add-btn" onClick={handleAddToCart}>
+                  add to cart
+                </button>
+              </div>
+            </div>
+          )}
 
         </div>
       </section>
@@ -919,6 +1286,101 @@ export default function ProductDetailPage({ product, navItems }) {
         </div>
       </div>
       </Layout>
+
+      {/* Zoom Popup */}
+      {showZoomPopup && images.length > 0 && activeImage && (
+        <div className="product-zoom-popup" onClick={closeZoomPopup}>
+          <button
+            className="product-zoom-popup-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeZoomPopup();
+            }}
+            aria-label="Close zoom"
+          >
+            <span className="material-icons">close</span>
+          </button>
+          {images.length > 1 && (
+            <>
+              <button
+                className="product-zoom-popup-nav product-zoom-popup-prev"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (activeImageIndex > 0) {
+                    const prevIndex = activeImageIndex - 1;
+                    setActiveImageIndex(prevIndex);
+                    setActiveImage(images[prevIndex]);
+                    setManualImageSelection(true);
+                  }
+                }}
+                aria-label="Previous image"
+                disabled={activeImageIndex === 0}
+              >
+                <span className="material-icons">chevron_left</span>
+              </button>
+              <button
+                className="product-zoom-popup-nav product-zoom-popup-next"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (activeImageIndex < images.length - 1) {
+                    const nextIndex = activeImageIndex + 1;
+                    setActiveImageIndex(nextIndex);
+                    setActiveImage(images[nextIndex]);
+                    setManualImageSelection(true);
+                  }
+                }}
+                aria-label="Next image"
+                disabled={activeImageIndex === images.length - 1}
+              >
+                <span className="material-icons">chevron_right</span>
+              </button>
+            </>
+          )}
+          <div 
+            className="product-zoom-popup-content" 
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={onPopupTouchStart}
+            onTouchMove={onPopupTouchMove}
+            onTouchEnd={onPopupTouchEnd}
+          >
+            <div className="product-zoom-popup-slider-wrapper">
+              <div 
+                className="product-zoom-popup-slider"
+                style={{
+                  transform: `translateX(-${activeImageIndex * 100}%)`,
+                  transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              >
+                {images.map((src, index) => (
+                  <div key={src} className="product-zoom-popup-slide">
+                    <img
+                      src={src}
+                      alt={`${product.title} - Image ${index + 1}`}
+                      className="product-zoom-popup-image"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {images.length > 1 && (
+              <div className="product-zoom-popup-pagination">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`product-zoom-popup-dot ${index === activeImageIndex ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveImageIndex(index);
+                      setActiveImage(images[index]);
+                      setManualImageSelection(true);
+                    }}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -273,6 +273,12 @@
 }
 
 @media (max-width: 640px) {
+  .cart-page {
+    width: calc(100% - 10px);
+    margin: 20px 5px !important;
+    padding: 20px 5px 80px;
+  }
+
   .cart-drawer-body-wrapper {
     width: 100%;
     max-width: 100%;
