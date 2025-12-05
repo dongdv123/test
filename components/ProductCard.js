@@ -10,7 +10,9 @@ function ProductCard({ product, index = 0, variant = "simple" }) {
     return (
       <article className="slider-card">
         <div className="product-card-body">
-          <img src={card.img} alt={card.title} loading="lazy" width="400" height="400" />
+          <div className="product-card-image-wrapper">
+            <img src={card.img} alt={card.title} loading="lazy" width="400" height="400" />
+          </div>
           <div className="slider-card-body">
             <h4>{card.title}</h4>
             {card.price && (
@@ -41,7 +43,9 @@ function ProductCard({ product, index = 0, variant = "simple" }) {
       <div className="collection-card-media">
         <span className="collection-badge-top">{card.badgeTop}</span>
         <WishlistButton product={card} />
-        <img src={card.img} alt={card.title} loading="lazy" />
+        <div className="product-card-image-wrapper">
+          <img src={card.img} alt={card.title} loading="lazy" />
+        </div>
       </div>
       <div className="collection-card-body">
         <span className="collection-card-pill">{card.badgePill}</span>

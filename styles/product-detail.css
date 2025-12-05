@@ -73,7 +73,7 @@
   position: absolute;
   top: 16px;
   left: 16px;
-  z-index: 1;
+  z-index: 10;
   display: flex;
   align-items: center;
 }
@@ -412,22 +412,58 @@
   box-shadow: 0 2px 8px rgba(12, 138, 104, 0.3);
 }
 
+/* Buttons with images - vertical layout */
+.option-values button:has(.option-value-with-image) {
+  flex-direction: column;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  min-height: 80px;
+  max-width: 80px;
+  max-height: 80px;
+  padding: 0;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-values button.active:has(.option-value-with-image) {
+  background: rgba(12, 138, 104, 0.05);
+  color: #0b5336;
+  border-color: #0c8a68;
+  border-width: 2px;
+  box-shadow: 0 2px 8px rgba(12, 138, 104, 0.2);
+}
+
 .option-value-with-image {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 1 / 1;
 }
 
 .option-value-with-image img {
-  width: 32px;
-  height: 32px;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
   object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border: none;
+  display: block;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
 }
 
 .option-values button.active .option-value-with-image img {
-  border-color: rgba(255, 255, 255, 0.3);
+  border: none;
 }
 
 .product-get-it-by {

@@ -1,4 +1,6 @@
 import { shopifyCustomerRequest } from "../../../lib/shopifyCustomer";
+import crypto from "crypto";
+import { checkRateLimit, getClientIp } from "../../../lib/rateLimit";
 
 const CREATE_CUSTOMER_MUTATION = `
   mutation customerCreate($input: CustomerCreateInput!) {
@@ -21,6 +23,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
+  const ip = getClientIp(req);
+  if (!checkRateLimit({ key: `newsletter:${ip}`, windowMs: 60_000, max: 20 })) {
+    return res.status(429).json({ message: "Too many requests" });
+  }
+
   const { email } = req.body;
 
   if (!email || !email.trim()) {
@@ -35,12 +42,13 @@ export default async function handler(req, res) {
   try {
     // Create new customer with acceptsMarketing = true
     // If customer already exists, Shopify will return an error which we'll handle
+    const strongPassword = `${crypto.randomBytes(24).toString("base64url")}A1!`;
     const createResult = await shopifyCustomerRequest(CREATE_CUSTOMER_MUTATION, {
       input: {
         email: email.trim(),
         acceptsMarketing: true,
-        // Create a random password - customer can reset it later if needed
-        password: Math.random().toString(36).slice(-12) + "A1!",
+        // Create a strong random password - customer can reset it later if needed
+        password: strongPassword,
       },
     });
 

@@ -1,4 +1,6 @@
 import { createCart } from "../../lib/shopify";
+import { checkRateLimit, getClientIp } from "../../lib/rateLimit";
+import crypto from "crypto";
 
 const DEFAULT_API_VERSION = process.env.SHOPIFY_STOREFRONT_API_VERSION || "2023-10";
 
@@ -6,9 +8,9 @@ const sanitizeDomain = (value = "") =>
   value.trim().replace(/^https?:\/\//i, "").replace(/\/$/, "");
 
 const requestShopifyStorefrontClient = async (query, variables = {}) => {
-  const rawDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_STORE_DOMAIN;
+  const rawDomain = process.env.SHOPIFY_STORE_DOMAIN;
   const domain = sanitizeDomain(rawDomain);
-  const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || process.env.SHOPIFY_STOREFRONT_TOKEN;
+  const token = process.env.SHOPIFY_STOREFRONT_TOKEN;
 
   if (!domain || !token) {
     console.error("Shopify Storefront credentials are missing");
@@ -51,16 +53,47 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  try {
-    const { cartId, variantIds, bundleName } = req.body;
+  const ip = getClientIp(req);
+  const apiKey = req.headers["x-api-key"];
+  const expectedKey = process.env.BUNDLE_API_KEY;
 
-    if (!variantIds || !Array.isArray(variantIds) || variantIds.length < 2) {
+  if (!expectedKey || apiKey !== expectedKey) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const allowedOrigin = process.env.BUNDLE_ALLOWED_ORIGIN;
+  if (allowedOrigin && req.headers.origin && req.headers.origin !== allowedOrigin) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  const rateOk = checkRateLimit({ key: `bundle:${ip}`, windowMs: 60_000, max: 30 });
+  if (!rateOk) {
+    return res.status(429).json({ error: "Too many requests" });
+  }
+
+  try {
+    const { cartId, variantIds, bundleName } = req.body || {};
+
+    if (!Array.isArray(variantIds) || variantIds.length < 2) {
       return res.status(400).json({ error: "Bundle must contain at least 2 products" });
     }
 
     if (variantIds.length > 3) {
       return res.status(400).json({ error: "Bundle cannot contain more than 3 products" });
     }
+
+    const sanitizedVariantIds = variantIds
+      .filter((v) => typeof v === "string" && v.startsWith("gid://shopify/ProductVariant/"))
+      .slice(0, 3);
+
+    if (sanitizedVariantIds.length !== variantIds.length) {
+      return res.status(400).json({ error: "Invalid variant IDs" });
+    }
+
+    const safeBundleName =
+      typeof bundleName === "string" && bundleName.trim().length > 0 && bundleName.trim().length <= 80
+        ? bundleName.trim()
+        : undefined;
 
     let currentCartId = cartId;
 
@@ -77,8 +110,8 @@ export default async function handler(req, res) {
 
     // Add all products to cart as bundle
     // Using attributes to mark them as part of a bundle
-    const bundleId = `bundle-${Date.now()}`;
-    const lines = variantIds.map((variantId, index) => ({
+    const bundleId = `bundle-${crypto.randomUUID()}`;
+    const lines = sanitizedVariantIds.map((variantId, index) => ({
       merchandiseId: variantId,
       quantity: 1,
       attributes: [
@@ -88,7 +121,7 @@ export default async function handler(req, res) {
         },
         {
           key: "_bundle_name",
-          value: bundleName || `Bundle ${bundleId}`,
+          value: safeBundleName || `Bundle ${bundleId}`,
         },
         {
           key: "_bundle_item",

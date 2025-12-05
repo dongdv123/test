@@ -26,28 +26,46 @@ footer {
 
 .footer-email-form {
   display: flex;
-  gap: 8px;
-  max-width: 500px;
+  gap: 12px;
+  max-width: 600px;
   margin: 0 auto;
   width: 100%;
+  padding: 4px;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 0.75em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .footer-email-form input {
   flex: 1;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 0.75em;
+  font-size: 16px;
   outline: none;
+  background: transparent;
 }
 
 .footer-email-form input:focus {
+  outline: none;
+}
+
+.footer-email-form input::placeholder {
+  color: #999;
+}
+
+.footer-email-form:focus-within {
   border-color: #0c8a68;
+  box-shadow: 0 2px 12px rgba(12, 138, 104, 0.15);
 }
 
 .footer-email-form button {
-  padding: 12px 24px;
+  padding: 16px 32px;
   white-space: nowrap;
+  border-radius: 0.75em;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .footer-email-form button:disabled {

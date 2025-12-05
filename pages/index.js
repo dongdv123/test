@@ -406,7 +406,7 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
       <Head>
         <title>Gikzo - Uncommon Gifts & Unique Products</title>
         <meta name="description" content="Discover unique and uncommon gifts at Gikzo. Hand-selected products for every occasion, from Christmas gifts to personalized items." />
-        <meta name="keywords" content="gifts, unique gifts, uncommon goods, Christmas gifts, personalized gifts" />
+        <meta name="keywords" content="gifts, unique gifts, gikzo, Christmas gifts, personalized gifts" />
         <meta property="og:title" content="Gikzo - Uncommon Gifts & Unique Products" />
         <meta property="og:description" content="Discover unique and uncommon gifts at Gikzo. Hand-selected products for every occasion." />
         <meta property="og:type" content="website" />

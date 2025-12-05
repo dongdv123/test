@@ -67,6 +67,24 @@
   outline: none;
 }
 
+.auth-form input:invalid:not(:focus):not(:placeholder-shown) {
+  border-color: #b42318;
+}
+
+.auth-field-error {
+  color: #b42318;
+  font-size: 12px;
+  margin-top: 2px;
+  display: block;
+}
+
+.auth-hint {
+  color: #5f6c67;
+  font-size: 12px;
+  margin-top: 2px;
+  display: block;
+}
+
 .auth-remember {
   display: flex !important;
   flex-direction: row !important;
@@ -87,6 +105,10 @@
   color: #b42318;
   font-size: 13px;
   margin-top: -4px;
+  padding: 8px 12px;
+  background: #fef3f2;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
 }
 
 .auth-switch {

@@ -28,8 +28,8 @@ function NavItem({ item, isActive, onNavClick, closeMenu, onSubMenuClick }) {
   const dropdownRef = useRef(null);
 
   const handleMobileClick = (e) => {
-    // Only handle mobile click on mobile devices
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+    // Handle mobile/tablet click (mobile and tablet use slide menu)
+    if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
       if (hasSubItems && typeof onSubMenuClick === 'function') {
         e.preventDefault();
         onSubMenuClick(item);
@@ -157,8 +157,8 @@ function NavItem({ item, isActive, onNavClick, closeMenu, onSubMenuClick }) {
           className={`nav-link ${isActive ? "active" : ""} ${hasSubItems ? "has-dropdown" : ""}`}
           disabled={item.disabled}
           onClick={(e) => {
-            // Mobile: handle sub-menu click
-            if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+            // Mobile/Tablet: handle sub-menu click
+            if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
               if (hasSubItems && typeof onSubMenuClick === 'function') {
                 e.preventDefault();
                 onSubMenuClick(item);
@@ -178,14 +178,14 @@ function NavItem({ item, isActive, onNavClick, closeMenu, onSubMenuClick }) {
       ) : (
         <span 
           className={`nav-link ${hasSubItems ? "has-dropdown" : ""}`}
-          onClick={typeof window !== 'undefined' && window.innerWidth <= 768 && hasSubItems && typeof onSubMenuClick === 'function' ? () => onSubMenuClick(item) : undefined}
+          onClick={typeof window !== 'undefined' && window.innerWidth <= 1024 && hasSubItems && typeof onSubMenuClick === 'function' ? () => onSubMenuClick(item) : undefined}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           {item.title}
         </span>
       )}
-      {hasSubItems && isHovered && (
+      {hasSubItems && isHovered && typeof window !== 'undefined' && window.innerWidth > 1024 && (
         <div 
           ref={dropdownRef}
           className="nav-dropdown"
@@ -710,6 +710,14 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
             </div>
           </div>
           <nav className="nav" id="primary-nav">
+            <button
+              type="button"
+              className="nav-close-btn"
+              onClick={closeMenu}
+              aria-label="Close menu"
+            >
+              <span className="material-icons">close</span>
+            </button>
             <div className="nav-mobile-actions">
               {isAuthenticated ? (
                 <Link href="/profile" className="nav-mobile-action">
@@ -780,6 +788,13 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
               })}
             </div>
           </nav>
+          {menuOpen && (
+            <div 
+              className="nav-backdrop" 
+              onClick={closeMenu}
+              aria-hidden="true"
+            />
+          )}
         </div>
       </header>
 
@@ -962,7 +977,7 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
           ))}
         </div>
         <p className="footer-bottom">
-          Shipping to: 🇻🇳 · change · ©2025 Uncommon Goods™ LLC · 888-365-0056 · Brooklyn, NY
+          Shipping to: 🇻🇳 · change · ©2025 gikzo™ LLC · 888-365-0056 · Brooklyn, NY
         </p>
         </footer>
 

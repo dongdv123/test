@@ -323,6 +323,11 @@
   color: inherit;
   text-transform: inherit;
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav .nav-link:hover {
+  color: #0c8a68;
 }
 
 /* Old dropdown styles - removed to avoid conflict with new full-width dropdown */

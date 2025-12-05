@@ -1,4 +1,5 @@
 import { shopifyCustomerRequest } from "../../../lib/shopifyCustomer";
+import { checkRateLimit, getClientIp } from "../../../lib/rateLimit";
 
 const UPDATE_ADDRESS_MUTATION = `
   mutation customerAddressUpdate($address: MailingAddressInput!, $customerAccessToken: String!, $id: ID!) {
@@ -65,6 +66,11 @@ const SET_DEFAULT_ADDRESS_MUTATION = `
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
+  }
+
+  const ip = getClientIp(req);
+  if (!checkRateLimit({ key: `address:${ip}`, windowMs: 60_000, max: 30 })) {
+    return res.status(429).json({ message: "Too many requests" });
   }
 
   const { token, address, addressId, setAsDefault } = req.body || {};

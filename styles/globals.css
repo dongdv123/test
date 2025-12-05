@@ -833,6 +833,10 @@ section {
   margin: 12px 0;
 }
 
+.better-give p {
+  margin-bottom: 18px;
+}
+
 .recent-section {
   background: #fff;
   padding: 50px 0;

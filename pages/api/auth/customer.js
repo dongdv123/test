@@ -1,4 +1,5 @@
 import { shopifyCustomerRequest } from "../../../lib/shopifyCustomer";
+import { checkRateLimit, getClientIp } from "../../../lib/rateLimit";
 
 const QUERY = `
   query getCustomer($token: String!) {
@@ -49,6 +50,11 @@ const QUERY = `
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
+  }
+
+  const ip = getClientIp(req);
+  if (!checkRateLimit({ key: `customer:${ip}`, windowMs: 60_000, max: 60 })) {
+    return res.status(429).json({ message: "Too many requests" });
   }
 
   const { token } = req.body || {};

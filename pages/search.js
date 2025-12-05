@@ -116,7 +116,9 @@ export default function SearchPage({ searchResults = [], searchQuery = "", navIt
                       <div className="collection-card-media">
                         <span className="collection-badge-top">{defaults.top}</span>
                         <WishlistButton product={normalizedProduct} />
-                        <img src={normalizedProduct.img} alt={normalizedProduct.title} loading="lazy" />
+                        <div className="product-card-image-wrapper">
+                          <img src={normalizedProduct.img} alt={normalizedProduct.title} loading="lazy" />
+                        </div>
                       </div>
                       <div className="collection-card-body">
                         <span className="collection-card-pill">{defaults.pill}</span>

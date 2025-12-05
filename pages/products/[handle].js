@@ -775,68 +775,99 @@ export default function ProductDetailPage({ product, navItems }) {
               <div className="product-options">
                 {product.options
                   .filter((option) => option.values && option.values.length)
-                  .map((option) => (
-                    <div key={option.name}>
-                      <div className="option-label">{option.name}</div>
-                      <div className="option-values">
-                        {option.values.map((value) => {
-                          // Find variant that matches this option value
-                          // Try to find variant with this specific option value, considering other selected options
-                          let matchingVariant = null;
-
-                          // First, try to find variant with this option value AND other selected options
-                          const tempOptions = { ...selectedOptions, [option.name]: value };
-                          matchingVariant = product.variants?.find((variant) =>
-                            (variant.selectedOptions || []).every(
-                              (opt) => tempOptions[opt.name] === opt.value
-                            )
+                  .map((option) => {
+                    // Check if this option has images
+                    const optionNameLower = option.name?.toLowerCase() || '';
+                    const hasImageOption = option.values.some((value) => {
+                      const tempOptions = { ...selectedOptions, [option.name]: value };
+                      let matchingVariant = product.variants?.find((variant) =>
+                        (variant.selectedOptions || []).every(
+                          (opt) => tempOptions[opt.name] === opt.value
+                        )
+                      );
+                      if (!matchingVariant) {
+                        matchingVariant = product.variants?.find((variant) => {
+                          const optionMatch = variant.selectedOptions?.find(
+                            (opt) => opt.name === option.name && opt.value === value
                           );
+                          return optionMatch !== undefined;
+                        });
+                      }
+                      const variantImage = matchingVariant?.image?.src;
+                      return variantImage && (
+                        optionNameLower.includes('material') ||
+                        optionNameLower.includes('color') ||
+                        optionNameLower.includes('colour')
+                      );
+                    });
 
-                          // If not found, try to find any variant with this option value (ignore other options)
-                          if (!matchingVariant) {
-                            matchingVariant = product.variants?.find((variant) => {
-                              const optionMatch = variant.selectedOptions?.find(
-                                (opt) => opt.name === option.name && opt.value === value
-                              );
-                              return optionMatch !== undefined;
-                            });
-                          }
+                    // Get selected value for this option
+                    const selectedValue = selectedOptions[option.name];
+                    const selectedValueText = hasImageOption && selectedValue 
+                      ? `${option.name} - ${selectedValue}` 
+                      : option.name;
 
-                          // Get variant image if exists
-                          // Only show image for Material and Color options, not for Size
-                          const variantImage = matchingVariant?.image?.src;
-                          const optionNameLower = option.name?.toLowerCase() || '';
-                          const shouldShowImage = variantImage &&
-                            (optionNameLower.includes('material') ||
-                              optionNameLower.includes('color') ||
-                              optionNameLower.includes('colour'));
+                    return (
+                      <div key={option.name}>
+                        <div className="option-label">{selectedValueText}</div>
+                        <div className="option-values">
+                          {option.values.map((value) => {
+                            // Find variant that matches this option value
+                            // Try to find variant with this specific option value, considering other selected options
+                            let matchingVariant = null;
 
-                          return (
-                            <button
-                              key={value}
-                              type="button"
-                              className={selectedOptions[option.name] === value ? "active" : ""}
-                              onClick={() =>
-                                setSelectedOptions((prev) => ({
-                                  ...prev,
-                                  [option.name]: value,
-                                }))
-                              }
-                            >
-                              {shouldShowImage ? (
-                                <span className="option-value-with-image">
-                                  <img src={variantImage} alt={value} loading="lazy" />
+                            // First, try to find variant with this option value AND other selected options
+                            const tempOptions = { ...selectedOptions, [option.name]: value };
+                            matchingVariant = product.variants?.find((variant) =>
+                              (variant.selectedOptions || []).every(
+                                (opt) => tempOptions[opt.name] === opt.value
+                              )
+                            );
+
+                            // If not found, try to find any variant with this option value (ignore other options)
+                            if (!matchingVariant) {
+                              matchingVariant = product.variants?.find((variant) => {
+                                const optionMatch = variant.selectedOptions?.find(
+                                  (opt) => opt.name === option.name && opt.value === value
+                                );
+                                return optionMatch !== undefined;
+                              });
+                            }
+
+                            // Get variant image if exists
+                            // Only show image for Material and Color options, not for Size
+                            const variantImage = matchingVariant?.image?.src;
+                            const shouldShowImage = variantImage &&
+                              (optionNameLower.includes('material') ||
+                                optionNameLower.includes('color') ||
+                                optionNameLower.includes('colour'));
+
+                            return (
+                              <button
+                                key={value}
+                                type="button"
+                                className={selectedOptions[option.name] === value ? "active" : ""}
+                                onClick={() =>
+                                  setSelectedOptions((prev) => ({
+                                    ...prev,
+                                    [option.name]: value,
+                                  }))
+                                }
+                              >
+                                {shouldShowImage ? (
+                                  <span className="option-value-with-image">
+                                    <img src={variantImage} alt={value} loading="lazy" />
+                                  </span>
+                                ) : (
                                   <span>{value}</span>
-                                </span>
-                              ) : (
-                                <span>{value}</span>
-                              )}
-                            </button>
-                          );
-                        })}
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             ) : null}
 

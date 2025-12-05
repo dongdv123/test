@@ -391,7 +391,9 @@ export default function CollectionPage({ collection, navItems }) {
                       <div className="collection-card-media">
                         <span className="collection-badge-top">{defaults.top}</span>
                         <WishlistButton product={product} />
-                        <img src={product.img} alt={product.title} loading="lazy" />
+                        <div className="product-card-image-wrapper">
+                          <img src={product.img} alt={product.title} loading="lazy" />
+                        </div>
                       </div>
                       <div className="collection-card-body">
                         <span className="collection-card-pill">{defaults.pill}</span>
@@ -433,7 +435,9 @@ export default function CollectionPage({ collection, navItems }) {
                       <div className="collection-card-media">
                         <span className="collection-badge-top">{defaults.top}</span>
                         <WishlistButton product={product} />
-                        <img src={product.img} alt={product.title} loading="lazy" />
+                        <div className="product-card-image-wrapper">
+                          <img src={product.img} alt={product.title} loading="lazy" />
+                        </div>
                       </div>
                       <div className="collection-card-body">
                         <span className="collection-card-pill">{defaults.pill}</span>

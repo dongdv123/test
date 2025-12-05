@@ -34,13 +34,15 @@
   padding: 0 18px 18px;
 }
 
-.slider-card img {
-  width: 100%;
-  height: auto;
+.slider-card .product-card-image-wrapper {
   aspect-ratio: 1 / 1;
+  width: 100%;
+}
+
+.slider-card .product-card-image-wrapper img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 0.75em;
-  display: block;
 }
 
 .slider-card-body {
