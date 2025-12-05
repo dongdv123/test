@@ -4,6 +4,74 @@ footer {
   background: #fff8e2;
 }
 
+.footer-email-signup {
+  width: 80%;
+  margin: 0 auto;
+  padding: 40px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.footer-email-signup h4 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #0b3b29;
+}
+
+.footer-email-signup p {
+  font-size: 14px;
+  color: var(--stone);
+  margin-bottom: 20px;
+}
+
+.footer-email-form {
+  display: flex;
+  gap: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.footer-email-form input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+}
+
+.footer-email-form input:focus {
+  border-color: #0c8a68;
+}
+
+.footer-email-form button {
+  padding: 12px 24px;
+  white-space: nowrap;
+}
+
+.footer-email-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.footer-email-message {
+  margin-top: 12px;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.footer-email-message.success {
+  color: #0c8a68;
+  background: rgba(12, 138, 104, 0.1);
+}
+
+.footer-email-message.error {
+  color: #d32f2f;
+  background: rgba(211, 47, 47, 0.1);
+}
+
 .footer-top {
   padding: 40px 0;
   display: grid;

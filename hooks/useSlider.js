@@ -45,6 +45,8 @@ export const useSlider = () => {
     registerTrack,
     slide,
     hasMultipleSlides,
+    positions,
+    trackRefs,
   };
 };
 

@@ -55,11 +55,16 @@ export default function GiftFinderPage({ productTags = [], navItems = baseNavLin
     }
     
     if (selectedInterests.length > 0) {
-      searchTerms.push(...selectedInterests);
+      // Convert tag IDs back to readable format for search
+      const interestTerms = selectedInterests.map(interest => 
+        interest.replace(/-/g, " ")
+      );
+      searchTerms.push(...interestTerms);
     }
 
     const searchQuery = searchTerms.join(" ");
-    const url = searchQuery ? `/?search=${encodeURIComponent(searchQuery)}` : "/";
+    // Add type=tags parameter to indicate this is from gift-finder
+    const url = searchQuery ? `/search?q=${encodeURIComponent(searchQuery)}&type=tags` : "/search?type=tags";
     
     router.push(url);
   };

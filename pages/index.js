@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useSlider } from "../hooks/useSlider";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
-import { fetchShopifyProducts, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { fetchShopifyProducts, fetchNewProducts, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
 import { normalizeProduct } from "../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { getNavItems } from "../lib/navUtils";
@@ -235,9 +235,9 @@ const normalizeCollection = (collection) => {
   };
 };
 
-export default function Home({ shopifyProducts = [], shopifyCollections = [], shopifyMenuItems = [] }) {
+export default function Home({ shopifyProducts = [], newProducts = [], shopifyCollections = [], shopifyMenuItems = [] }) {
   const router = useRouter();
-  const { registerTrack, slide, hasMultipleSlides } = useSlider();
+  const { registerTrack, slide, hasMultipleSlides, positions, trackRefs } = useSlider();
   const [activeTrend, setActiveTrend] = useState(trendTabs[0]);
   const searchQuery = router.query.search || "";
   
@@ -295,7 +295,14 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [], sh
     return [];
   };
 
-  const derivedNewItems = normalizedProducts.slice(0, MIN_SECTION_ITEMS);
+  // Use new products from API (sorted by CREATED_AT) or fallback to first products
+  const normalizedNewProducts = useMemo(
+    () => (newProducts || []).map(normalizeProduct).filter(Boolean),
+    [newProducts],
+  );
+  const derivedNewItems = normalizedNewProducts.slice(0, MIN_SECTION_ITEMS).length > 0 
+    ? normalizedNewProducts.slice(0, MIN_SECTION_ITEMS)
+    : normalizedProducts.slice(0, MIN_SECTION_ITEMS);
   const derivedBestItems = normalizedProducts.slice(
     MIN_SECTION_ITEMS,
     MIN_SECTION_ITEMS * 2,
@@ -449,7 +456,7 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [], sh
       <section className="section-shell slider-full">
         <div className="trending-header">
           <div className="section-head">
-            <span className="trend-icon">📈</span> Today's Trending Searches
+            <span className="material-icons" style={{ fontSize: '26px' }}>trending_up</span> Today's Trending Searches
           </div>
           <div className="trend-tabs">
             {trendTabs.map((tab) => (
@@ -682,9 +689,10 @@ export default function Home({ shopifyProducts = [], shopifyCollections = [], sh
 
 export async function getServerSideProps() {
   try {
-    const [products, collections, menuItems] = await Promise.all([
+    const [products, newProducts, collections, menuItems] = await Promise.all([
       fetchShopifyProducts(120),
-      fetchShopifyCollections(12),
+      fetchNewProducts(20), // Fetch new products (sorted by CREATED_AT)
+      fetchShopifyCollections(50), // Fetch more collections to ensure menu images are available
       fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
         console.error("Failed to fetch menu:", err);
         return [];
@@ -693,6 +701,7 @@ export async function getServerSideProps() {
     return {
       props: {
         shopifyProducts: products,
+        newProducts: newProducts,
         shopifyCollections: collections,
         shopifyMenuItems: menuItems,
       },
@@ -702,6 +711,7 @@ export async function getServerSideProps() {
     return {
       props: {
         shopifyProducts: [],
+        newProducts: [],
         shopifyCollections: [],
         shopifyMenuItems: [],
       },

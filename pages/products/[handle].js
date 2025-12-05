@@ -327,17 +327,32 @@ export default function ProductDetailPage({ product, navItems }) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showZoomPopup]);
 
-  // Sticky CTA visibility
+  // Sticky CTA visibility - show only when Add to Cart button is completely hidden from viewport (minus header height)
   useEffect(() => {
     const handleScroll = () => {
       const ctaElement = document.querySelector('.product-cta-row');
+      const headerElement = document.querySelector('.header');
+      
       if (ctaElement) {
         const rect = ctaElement.getBoundingClientRect();
-        setShowStickyCTA(rect.bottom < 0);
+        // Get header height, default to 0 if not found
+        const headerHeight = headerElement ? headerElement.offsetHeight : 0;
+        
+        // Show sticky bar only when the CTA row is completely out of viewport
+        // Account for header height: element is hidden when its bottom is above (header height)
+        // or when its top is below the bottom of viewport
+        const isCompletelyHidden = rect.bottom < headerHeight || rect.top > window.innerHeight;
+        setShowStickyCTA(isCompletelyHidden);
       }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   const currency =
@@ -909,9 +924,9 @@ export default function ProductDetailPage({ product, navItems }) {
             </div>
           </div>
 
-          {/* Sticky CTA Bar */}
+          {/* Sticky CTA Bar - Fixed at bottom when scrolled past */}
           {showStickyCTA && (
-            <div className="product-sticky-cta">
+            <div className="product-sticky-cta show">
               <div className="product-sticky-cta-content">
                 <div className="product-sticky-price">{displayPrice}</div>
                 <button className="btn btn-primary product-sticky-add-btn" onClick={handleAddToCart}>

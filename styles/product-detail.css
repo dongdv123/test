@@ -20,7 +20,7 @@
   grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
   gap: 40px;
   width: min(100%, var(--site-max-width));
-  margin: 40px auto;
+  margin: 20px auto;
   align-items: start;
 }
 
@@ -73,7 +73,7 @@
   position: absolute;
   top: 16px;
   left: 16px;
-  z-index: 20;
+  z-index: 1;
   display: flex;
   align-items: center;
 }
@@ -650,6 +650,29 @@
   z-index: 1000;
   padding: 12px 16px;
   display: none;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.product-sticky-cta.show {
+  display: block;
+}
+
+/* Global: Show sticky CTA on all devices */
+@media (min-width: 701px) {
+  .product-sticky-cta.show {
+    display: block;
+  }
 }
 
 .product-sticky-cta-content {
