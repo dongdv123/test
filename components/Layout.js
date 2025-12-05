@@ -345,11 +345,18 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
   const { items: wishlistItems } = useWishlist();
   const { items: cartItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
-  const wishlistCount = wishlistItems.length;
-  const hasWishlistItems = wishlistCount > 0;
+  const [mounted, setMounted] = useState(false);
+
+  // Only calculate counts after component mounts to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const wishlistCount = mounted ? wishlistItems.length : 0;
+  const hasWishlistItems = mounted && wishlistCount > 0;
   const wishlistAriaLabel = hasWishlistItems ? `wish list (${wishlistCount})` : "wish list";
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const cartBadgeCount = cartCount > 0 ? cartCount : undefined;
+  const cartCount = mounted ? cartItems.reduce((sum, item) => sum + item.quantity, 0) : 0;
+  const cartBadgeCount = mounted && cartCount > 0 ? cartCount : undefined;
   const skeletonPath = targetRoute || router?.asPath || "/";
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");

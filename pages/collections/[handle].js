@@ -316,7 +316,12 @@ export default function CollectionPage({ collection, navItems }) {
                   )}
                 </button>
                 {isSortFilterOpen && (
-                  <div className="collection-sort-filter-dropdown">
+                  <>
+                    <div 
+                      className="collection-sort-filter-backdrop"
+                      onClick={() => setIsSortFilterOpen(false)}
+                    />
+                    <div className="collection-sort-filter-dropdown">
                     <div className="sort-filter-section">
                       <h3 className="sort-filter-title">Sort by</h3>
                       <div className="sort-filter-options">
@@ -364,6 +369,7 @@ export default function CollectionPage({ collection, navItems }) {
                       </div>
                     )}
                   </div>
+                  </>
                 )}
               </div>
             </div>
