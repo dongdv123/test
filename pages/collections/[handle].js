@@ -207,13 +207,13 @@ export default function CollectionPage({ collection, navItems }) {
     };
   }, [isSortFilterOpen]);
   
-  // Dòng 1: 4 sản phẩm đầu tiên
+  // Row 1: First 4 products
   const firstRowProducts = processedProducts.slice(0, FIRST_ROW_PRODUCT_LIMIT);
   
-  // Dòng 2: Reviews (lấy từ 6 sản phẩm đầu tiên - always from all products)
+  // Row 2: Reviews (taken from first 6 products - always from all products)
   const reviewProducts = allProducts.slice(0, 6);
   
-  // Dòng 3 trở đi: Các sản phẩm còn lại (từ sản phẩm thứ 5 trở đi)
+  // Row 3 onwards: Remaining products (from 5th product onwards)
   const remainingProducts = processedProducts.slice(FIRST_ROW_PRODUCT_LIMIT);
   
   const handleSortChange = (value) => {
@@ -380,7 +380,7 @@ export default function CollectionPage({ collection, navItems }) {
       <section className="section-shell">
         {allProducts.length ? (
           <>
-            {/* Dòng 1: 4 sản phẩm đầu tiên */}
+            {/* Row 1: First 4 products */}
             {firstRowProducts.length > 0 && (
               <div className="collection-products-section">
                 <div className="collection-grid">
@@ -420,10 +420,10 @@ export default function CollectionPage({ collection, navItems }) {
               </div>
             )}
 
-            {/* Dòng 2: Slide reviews */}
+            {/* Row 2: Slide reviews */}
             <FeaturedReviews products={reviewProducts} />
 
-            {/* Dòng 3 trở đi: Các sản phẩm còn lại */}
+            {/* Row 3 onwards: Remaining products */}
             {remainingProducts.length > 0 && (
               <div className="collection-products-section">
                 <div className="collection-grid">
@@ -465,7 +465,7 @@ export default function CollectionPage({ collection, navItems }) {
             )}
           </>
         ) : (
-          <p className="collection-empty">Chưa có sản phẩm trong danh mục này.</p>
+          <p className="collection-empty">No products in this collection.</p>
         )}
       </section>
       </Layout>
@@ -473,7 +473,35 @@ export default function CollectionPage({ collection, navItems }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+// Get all collection handles at build time for static generation
+export async function getStaticPaths() {
+  try {
+    // Fetch all collections to get handles
+    const collections = await fetchShopifyCollections(250); // Get up to 250 collections
+    
+    const paths = collections
+      .filter((collection) => collection.handle)
+      .map((collection) => ({
+        params: { handle: collection.handle },
+      }));
+
+    return {
+      paths,
+      // Fallback: 'blocking' means new collections will be generated on-demand
+      // and then cached for future requests
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    console.error("Failed to fetch collections for static paths:", error);
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
+}
+
+// Convert to ISR (Incremental Static Regeneration) for better performance
+export async function getStaticProps({ params }) {
   const handle = params?.handle;
   if (!handle) {
     return { notFound: true };
@@ -498,6 +526,8 @@ export async function getServerSideProps({ params }) {
         collection,
         navItems,
       },
+      // Revalidate every 60 seconds - pages will be regenerated in the background
+      revalidate: 60,
     };
   } catch (error) {
     console.error("Failed to load collection from Shopify", error);

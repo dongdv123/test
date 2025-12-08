@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "../styles/design-system.css";
 import "../styles/components/auth-modal.css";
 import "../styles/components/skeleton.css";
 import "../styles/components/product-card.css";

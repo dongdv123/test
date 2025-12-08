@@ -1,6 +1,6 @@
 import { shopifyCustomerRequest } from "../../../lib/shopifyCustomer";
 import crypto from "crypto";
-import { checkRateLimit, getClientIp } from "../../../lib/rateLimit";
+import { checkRateLimit, getClientIp } from "../../../lib/rateLimitRedis";
 
 const CREATE_CUSTOMER_MUTATION = `
   mutation customerCreate($input: CustomerCreateInput!) {
@@ -24,18 +24,21 @@ export default async function handler(req, res) {
   }
 
   const ip = getClientIp(req);
-  if (!checkRateLimit({ key: `newsletter:${ip}`, windowMs: 60_000, max: 20 })) {
+  const rateOk = await checkRateLimit({ key: `newsletter:${ip}`, windowMs: 60_000, max: 20 });
+  if (!rateOk) {
     return res.status(429).json({ message: "Too many requests" });
   }
 
-  const { email } = req.body;
+  const { email } = req.body || {};
 
-  if (!email || !email.trim()) {
+  if (!email || typeof email !== 'string' || !email.trim()) {
     return res.status(400).json({ message: "Email is required" });
   }
 
+  // Sanitize and validate email
+  const trimmedEmail = email.trim().slice(0, 254); // RFC 5321 max email length
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.trim())) {
+  if (!emailRegex.test(trimmedEmail)) {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
@@ -45,7 +48,7 @@ export default async function handler(req, res) {
     const strongPassword = `${crypto.randomBytes(24).toString("base64url")}A1!`;
     const createResult = await shopifyCustomerRequest(CREATE_CUSTOMER_MUTATION, {
       input: {
-        email: email.trim(),
+        email: trimmedEmail,
         acceptsMarketing: true,
         // Create a strong random password - customer can reset it later if needed
         password: strongPassword,

@@ -45,7 +45,11 @@ const mapShopifyCartLines = (cart) => {
   return cart.lines.edges.map(({ node }) => {
     const variant = node.merchandise;
     const product = variant?.product;
+    // Ensure price is a valid number
     const price = Number(variant?.price?.amount || 0);
+    if (!Number.isFinite(price) || price < 0) {
+      console.warn("Invalid price for cart item:", variant?.price);
+    }
     const currency = variant?.price?.currencyCode || "USD";
     
     // Extract bundle attributes
@@ -53,6 +57,9 @@ const mapShopifyCartLines = (cart) => {
       acc[attr.key] = attr.value;
       return acc;
     }, {});
+    
+    // Ensure quantity is valid
+    const quantity = Math.max(0, Number(node.quantity) || 0);
     
     return {
       id: variant?.id || node.id,
@@ -64,7 +71,7 @@ const mapShopifyCartLines = (cart) => {
       unitPrice: price,
       currency,
       priceFormatted: formatPrice(price, currency),
-      quantity: node.quantity,
+      quantity: quantity,
       variantTitle: variant?.title || null,
       bundleId: attributes._bundle_id || null,
       bundleName: attributes._bundle_name || null,
@@ -78,6 +85,21 @@ export const CartProvider = ({ children }) => {
   const [cartId, setCartId] = useState(null);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [shopifySubtotal, setShopifySubtotal] = useState(0); // Store Shopify's calculated subtotal
+
+  // Helper function to update cart state from Shopify cart object
+  const updateCartFromShopify = useCallback((cart) => {
+    if (!cart) return;
+    setCheckoutUrl(cart.checkoutUrl || null);
+    setItems(mapShopifyCartLines(cart));
+    // Store Shopify's calculated subtotal for validation
+    const shopifyTotal = Number(cart.cost?.totalAmount?.amount || 0);
+    if (Number.isFinite(shopifyTotal)) {
+      setShopifySubtotal(shopifyTotal);
+    } else {
+      setShopifySubtotal(0);
+    }
+  }, []);
 
   // Load cart ID and sync with Shopify
   useEffect(() => {
@@ -94,8 +116,7 @@ export const CartProvider = ({ children }) => {
             savedCartId = newCart.id;
             window.localStorage.setItem(CART_ID_KEY, savedCartId);
             setCartId(savedCartId);
-            setCheckoutUrl(newCart.checkoutUrl || null);
-            setItems(mapShopifyCartLines(newCart));
+            updateCartFromShopify(newCart);
           } else {
             console.warn("Failed to create cart");
             setItems([]);
@@ -106,8 +127,7 @@ export const CartProvider = ({ children }) => {
           setCartId(savedCartId);
           const cart = await getCart(savedCartId);
           if (cart) {
-            setCheckoutUrl(cart.checkoutUrl || null);
-            setItems(mapShopifyCartLines(cart));
+            updateCartFromShopify(cart);
           } else {
             // Cart not found, create new one
             console.warn("Cart not found, creating new cart");
@@ -116,8 +136,7 @@ export const CartProvider = ({ children }) => {
               const newCartId = newCart.id;
               window.localStorage.setItem(CART_ID_KEY, newCartId);
               setCartId(newCartId);
-              setCheckoutUrl(newCart.checkoutUrl || null);
-              setItems(mapShopifyCartLines(newCart));
+              updateCartFromShopify(newCart);
             } else {
               setItems([]);
               setCheckoutUrl(null);
@@ -176,16 +195,13 @@ export const CartProvider = ({ children }) => {
       const updatedCart = await addToCart(currentCartId, variantId, quantity);
       if (updatedCart) {
         console.log("Cart updated successfully:", updatedCart);
-        setCheckoutUrl(updatedCart.checkoutUrl || null);
-        // Map cart lines to ensure bundle attributes are preserved
-        setItems(mapShopifyCartLines(updatedCart));
+        updateCartFromShopify(updatedCart);
       } else {
         // If addToCart didn't return cart, fetch it manually
         console.warn("addToCart didn't return cart, fetching manually...");
         const cart = await getCart(currentCartId);
         if (cart) {
-          setCheckoutUrl(cart.checkoutUrl || null);
-          setItems(mapShopifyCartLines(cart));
+          updateCartFromShopify(cart);
         } else {
           console.error("Failed to add to cart - no cart returned");
           throw new Error("Failed to add to cart");
@@ -198,7 +214,7 @@ export const CartProvider = ({ children }) => {
         try {
           const cart = await getCart(cartId);
           if (cart) {
-            setItems(mapShopifyCartLines(cart));
+            updateCartFromShopify(cart);
           }
         } catch (e) {
           console.error("Failed to refresh cart", e);
@@ -217,16 +233,13 @@ export const CartProvider = ({ children }) => {
         try {
           const updatedCart = await removeCartLine(cartId, item.lineId);
           if (updatedCart) {
-            setCheckoutUrl(updatedCart.checkoutUrl || null);
-            // Map cart lines to ensure bundle attributes are preserved
-            setItems(mapShopifyCartLines(updatedCart));
+            updateCartFromShopify(updatedCart);
             return;
           } else {
             // If removeCartLine didn't return cart, fetch it manually
             const cart = await getCart(cartId);
             if (cart) {
-              setCheckoutUrl(cart.checkoutUrl || null);
-              setItems(mapShopifyCartLines(cart));
+              updateCartFromShopify(cart);
               return;
             }
           }
@@ -237,8 +250,7 @@ export const CartProvider = ({ children }) => {
             try {
               const cart = await getCart(cartId);
               if (cart) {
-                setCheckoutUrl(cart.checkoutUrl || null);
-                setItems(mapShopifyCartLines(cart));
+                updateCartFromShopify(cart);
                 return;
               }
             } catch (e) {
@@ -249,6 +261,7 @@ export const CartProvider = ({ children }) => {
       }
       // Fallback: remove from local state
       setItems((prev) => prev.filter((item) => item.id !== id));
+      setShopifySubtotal(0);
       return;
     }
 
@@ -262,16 +275,13 @@ export const CartProvider = ({ children }) => {
       try {
         const updatedCart = await updateCartLine(cartId, item.lineId, finalQuantity);
         if (updatedCart) {
-          setCheckoutUrl(updatedCart.checkoutUrl || null);
-          // Map cart lines to ensure bundle attributes are preserved
-          setItems(mapShopifyCartLines(updatedCart));
+          updateCartFromShopify(updatedCart);
           return;
         } else {
           // If updateCartLine didn't return cart, fetch it manually
           const cart = await getCart(cartId);
           if (cart) {
-            setCheckoutUrl(cart.checkoutUrl || null);
-            setItems(mapShopifyCartLines(cart));
+            updateCartFromShopify(cart);
             return;
           }
         }
@@ -282,8 +292,7 @@ export const CartProvider = ({ children }) => {
           try {
             const cart = await getCart(cartId);
             if (cart) {
-              setCheckoutUrl(cart.checkoutUrl || null);
-              setItems(mapShopifyCartLines(cart));
+              updateCartFromShopify(cart);
               return;
             }
           } catch (e) {
@@ -302,16 +311,13 @@ export const CartProvider = ({ children }) => {
         try {
           const updatedCart = await removeCartLine(cartId, item.lineId);
           if (updatedCart) {
-            setCheckoutUrl(updatedCart.checkoutUrl || null);
-            // Map cart lines to ensure bundle attributes are preserved
-            setItems(mapShopifyCartLines(updatedCart));
+            updateCartFromShopify(updatedCart);
             return;
           } else {
             // If removeCartLine didn't return cart, fetch it manually
             const cart = await getCart(cartId);
             if (cart) {
-              setCheckoutUrl(cart.checkoutUrl || null);
-              setItems(mapShopifyCartLines(cart));
+              updateCartFromShopify(cart);
               return;
             }
           }
@@ -322,8 +328,7 @@ export const CartProvider = ({ children }) => {
             try {
               const cart = await getCart(cartId);
               if (cart) {
-                setCheckoutUrl(cart.checkoutUrl || null);
-                setItems(mapShopifyCartLines(cart));
+                updateCartFromShopify(cart);
                 return;
               }
             } catch (e) {
@@ -335,7 +340,8 @@ export const CartProvider = ({ children }) => {
     
     // Fallback: remove from local state
     setItems((prev) => prev.filter((item) => item.id !== id));
-  }, [items, cartId]);
+    setShopifySubtotal(0);
+  }, [items, cartId, updateCartFromShopify]);
 
   const clear = useCallback(async () => {
     // Remove all items one by one if we have cart ID
@@ -349,8 +355,7 @@ export const CartProvider = ({ children }) => {
         // Fetch updated cart (should be empty now)
         const updatedCart = await getCart(cartId);
         if (updatedCart) {
-          setCheckoutUrl(updatedCart.checkoutUrl || null);
-          setItems(mapShopifyCartLines(updatedCart));
+          updateCartFromShopify(updatedCart);
         } else {
           // If cart not found, create new one
           const newCart = await createCart();
@@ -360,11 +365,11 @@ export const CartProvider = ({ children }) => {
               window.localStorage.setItem(CART_ID_KEY, newCartId);
             }
             setCartId(newCartId);
-            setCheckoutUrl(newCart.checkoutUrl || null);
-            setItems([]);
+            updateCartFromShopify(newCart);
           } else {
             setItems([]);
             setCheckoutUrl(null);
+            setShopifySubtotal(0);
           }
         }
         return;
@@ -374,7 +379,8 @@ export const CartProvider = ({ children }) => {
     }
     // If no cart ID or clearing failed, just clear local state
     setItems([]);
-  }, [cartId, items]);
+    setShopifySubtotal(0);
+  }, [cartId, items, updateCartFromShopify]);
 
   const refreshCart = useCallback(async () => {
     // Get cart ID from localStorage in case it changed
@@ -392,8 +398,7 @@ export const CartProvider = ({ children }) => {
     try {
       const cart = await getCart(currentCartId);
       if (cart) {
-        setCheckoutUrl(cart.checkoutUrl || null);
-        setItems(mapShopifyCartLines(cart));
+        updateCartFromShopify(cart);
       } else {
         console.warn("Cart not found during refresh");
         setCheckoutUrl(null);
@@ -401,9 +406,19 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       console.error("Failed to refresh cart", error);
     }
-  }, [cartId]);
+  }, [cartId, updateCartFromShopify]);
 
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
+  // Calculate subtotal from items
+  // Note: This should match Shopify's calculation, but we use Shopify's totalAmount as source of truth
+  const calculatedSubtotal = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const itemTotal = Number(item.unitPrice || 0) * Number(item.quantity || 0);
+      return sum + (Number.isFinite(itemTotal) ? itemTotal : 0);
+    }, 0);
+  }, [items]);
+  
+  // Use Shopify's subtotal if available, otherwise fallback to calculated
+  const subtotal = shopifySubtotal > 0 ? shopifySubtotal : calculatedSubtotal;
 
   return (
     <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clear, subtotal, isLoading, cartId, checkoutUrl, refreshCart }}>

@@ -1,33 +1,33 @@
 /* Header Component */
 .header {
-  background: #f3eee2;
+  background: var(--color-bg-tertiary);
   position: sticky;
   top: 0;
-  z-index: 20;
-  border-bottom: 1px solid var(--border);
+  z-index: var(--z-index-sticky);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header-top {
   /* Calculate header height: padding (16px * 2) + logo height (32px) + border (1px) ≈ 65px */
-  --header-height: calc(16px + 32px + 16px + 1px);
+  --header-height: calc(var(--spacing-7) + var(--font-size-6xl) + var(--spacing-7) + 1px);
 }
 
 .header-top {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 18px;
-  padding: 16px 0;
+  gap: var(--spacing-8);
+  padding: var(--spacing-7) 0;
 }
 
 .logo {
-  font-size: 32px;
-  font-weight: 800;
-  color: #014126;
+  font-size: var(--font-size-6xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-primary-darker);
   display: flex;
   align-items: center;
-  gap: 6px;
-  letter-spacing: -0.02em;
+  gap: var(--spacing-2);
+  letter-spacing: var(--letter-spacing-tight);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -42,27 +42,27 @@
 .search {
   flex: 1;
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-5);
   align-items: center;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 20px;
-  background: #fff;
+  border: var(--input-border-width) solid var(--color-border);
+  border-radius: var(--input-border-radius);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  background: var(--color-neutral-100);
   position: relative;
-  z-index: 10;
-  transition: border-color 0.2s, border-radius 0.2s;
+  z-index: var(--z-index-dropdown);
+  transition: var(--transition-border), border-radius var(--transition-base);
 }
 
 .search.search-active {
-  border-color: #ff8c42;
+  border-color: var(--color-accent-orange);
 }
 
 .search-icon {
   flex-shrink: 0;
-  font-size: 28px !important;
-  color: #0c8a68 !important;
+  font-size: var(--font-size-5xl) !important;
+  color: var(--color-primary) !important;
   opacity: 1;
-  transition: opacity 0.2s, transform 0.2s;
+  transition: var(--transition-opacity), var(--transition-transform);
 }
 
 .search:hover .search-icon,
@@ -73,29 +73,29 @@
 
 .search-placeholder {
   flex: 1;
-  font-size: 15px;
-  color: #4d4d4d;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-light);
   cursor: text;
 }
 
 .search-placeholder:empty::before {
   content: attr(data-placeholder);
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .search-clear {
   background: transparent;
   border: none;
-  color: #0c8a68;
-  font-size: 14px;
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .search-clear:hover {
-  color: #0a6b52;
+  color: var(--color-primary-light);
 }
 
 .search-dropdown {
@@ -103,40 +103,40 @@
   top: 0;
   left: 0;
   right: 0;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: var(--color-neutral-100);
+  border-radius: var(--input-border-radius);
+  box-shadow: var(--shadow-xl);
   max-height: 500px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: var(--z-index-max);
   padding: 0;
 }
 
 .search-dropdown-input-wrapper {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-5);
   align-items: center;
-  padding: 12px 20px;
-  border-bottom: 1px solid #e6e8e3;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .search-dropdown-input {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 15px;
-  color: #4d4d4d;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-light);
   outline: none;
 }
 
 .search-dropdown .search-suggestions {
-  padding: 24px;
+  padding: var(--spacing-10);
 }
 
 .search-suggestions {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--spacing-10);
 }
 
 .search-suggestions-columns {

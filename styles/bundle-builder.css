@@ -1,170 +1,185 @@
 /* Bundle Builder Page Styles */
 .bundle-builder-page {
-  padding: 40px 20px 80px;
+  padding: var(--spacing-13) var(--spacing-9) 80px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .bundle-builder-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: var(--spacing-13);
 }
 
 .bundle-builder-header h1 {
-  font-size: 36px;
-  font-weight: 700;
-  color: #0b3b29;
-  margin-bottom: 12px;
+  font-size: var(--font-size-7xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-5);
 }
 
 .bundle-builder-subtitle {
-  font-size: 18px;
-  color: #5b6b64;
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-tertiary);
 }
 
 .bundle-builder-content {
   display: grid;
   grid-template-columns: 380px 1fr;
-  gap: 40px;
+  gap: var(--spacing-13);
   align-items: start;
 }
 
 .bundle-selection-panel {
-  background: #f0f9f6;
-  border-radius: 24px;
-  padding: 24px;
+  background: var(--color-bg-accent);
+  border-radius: var(--spacing-10);
+  padding: var(--spacing-10);
   position: sticky;
-  top: 20px;
+  top: var(--spacing-9);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .bundle-selection-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-9);
 }
 
 .bundle-selection-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0b3b29;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .bundle-clear-btn {
   background: transparent;
-  border: 1px solid #d5dcd5;
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 13px;
-  color: #5b6b64;
+  border: 1px solid var(--color-border-lighter);
+  border-radius: var(--input-border-radius);
+  padding: var(--spacing-2) var(--spacing-5);
+  font-size: var(--font-size-base);
+  color: var(--color-text-tertiary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition-all);
 }
 
 .bundle-clear-btn:hover {
-  border-color: #0c8a68;
-  color: #0c8a68;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .bundle-empty-state {
   text-align: center;
-  padding: 40px 20px;
-  color: #5b6b64;
-  font-size: 15px;
+  padding: var(--spacing-13) var(--spacing-9);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-lg);
 }
 
 .bundle-selected-products {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: var(--spacing-5);
+  margin-bottom: var(--spacing-10);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .bundle-selected-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 12px;
+  gap: var(--spacing-5);
+  background: var(--color-neutral-100);
+  border-radius: var(--spacing-7);
+  padding: var(--spacing-5);
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .bundle-selected-item img {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid #e6e8e3;
+  border-radius: var(--input-border-radius);
+  border: 1px solid var(--color-border-light);
 }
 
 .bundle-selected-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .bundle-selected-info h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0b3b29;
-  margin: 0 0 4px 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-1) 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .bundle-selected-price {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0b3b29;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
 .bundle-remove-btn {
   background: transparent;
   border: none;
-  font-size: 24px;
-  color: #5b6b64;
+  font-size: var(--font-size-4xl);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
+  border-radius: var(--radius-full);
+  transition: var(--transition-all);
 }
 
 .bundle-remove-btn:hover {
-  background: #ffe0e0;
-  color: #d32f2f;
+  background: var(--color-error-10);
+  color: var(--color-error-red);
 }
 
 .bundle-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-5);
 }
 
 .bundle-name-input {
-  border: 1px solid #d5dcd5;
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 15px;
+  border: 1px solid var(--color-border-lighter);
+  border-radius: var(--input-border-radius);
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: var(--font-size-lg);
   font-family: inherit;
-  color: #0b3b29;
+  color: var(--color-text-primary);
 }
 
 .bundle-name-input:focus {
   outline: none;
-  border-color: #0c8a68;
+  border-color: var(--color-primary);
 }
 
 .bundle-build-btn {
   width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: var(--spacing-6);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .bundle-build-btn:disabled {
@@ -173,10 +188,10 @@
 }
 
 .bundle-products-grid h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #0b3b29;
-  margin-bottom: 24px;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-10);
 }
 
 .bundle-product-card {
@@ -190,8 +205,8 @@
 }
 
 .bundle-product-card.selected {
-  border: 2px solid #0c8a68;
-  border-radius: 16px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--spacing-7);
 }
 
 .bundle-product-card.disabled {
@@ -220,23 +235,23 @@
 
 .bundle-product-selected-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #0c8a68;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
+  top: var(--spacing-5);
+  right: var(--spacing-5);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  padding: var(--spacing-2) var(--spacing-5);
+  border-radius: var(--radius-3xl);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   display: flex;
   align-items: center;
-  gap: 6px;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  gap: var(--spacing-2);
+  z-index: var(--z-index-dropdown);
+  box-shadow: var(--shadow-3xl);
 }
 
 .bundle-product-selected-badge .material-icons {
-  font-size: 18px;
+  font-size: var(--font-size-2xl);
 }
 
 .bundle-product-disabled-overlay {
@@ -246,10 +261,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #5b6b64;
+  border-radius: var(--spacing-7);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-tertiary);
   z-index: 5;
 }
 
@@ -283,6 +298,10 @@
 
   .bundle-selection-panel {
     padding: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .bundle-selection-header {
@@ -295,8 +314,13 @@
   }
 
   .bundle-selected-item {
-    padding: 10px;
-    gap: 10px;
+    padding: var(--spacing-4);
+    gap: var(--spacing-4);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .bundle-selected-item img {
@@ -305,21 +329,21 @@
   }
 
   .bundle-selected-info h4 {
-    font-size: 13px;
+    font-size: var(--font-size-base);
   }
 
   .bundle-selected-price {
-    font-size: 14px;
+    font-size: var(--font-size-md);
   }
 
   .bundle-products-grid h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-9);
   }
 
   .bundle-products-grid .collection-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: var(--spacing-5);
     width: 100%;
     max-width: 100%;
     padding: 0;
@@ -343,33 +367,42 @@
 
 @media (max-width: 480px) {
   .bundle-builder-page {
-    padding: 16px 12px 40px;
+    padding: var(--spacing-7) var(--spacing-5) var(--spacing-13);
   }
 
   .bundle-builder-header h1 {
-    font-size: 24px;
+    font-size: var(--font-size-4xl);
   }
 
   .bundle-builder-subtitle {
-    font-size: 14px;
+    font-size: var(--font-size-md);
   }
 
   .bundle-selection-panel {
-    padding: 16px;
+    padding: var(--spacing-7);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .bundle-selection-header h2 {
-    font-size: 16px;
+    font-size: var(--font-size-xl);
   }
 
   .bundle-clear-btn {
-    font-size: 12px;
-    padding: 5px 10px;
+    font-size: var(--font-size-sm);
+    padding: 5px var(--spacing-4);
   }
 
   .bundle-selected-item {
-    padding: 8px;
-    gap: 8px;
+    padding: var(--spacing-3);
+    gap: var(--spacing-3);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .bundle-selected-item img {
@@ -378,26 +411,26 @@
   }
 
   .bundle-selected-info h4 {
-    font-size: 12px;
+    font-size: var(--font-size-sm);
   }
 
   .bundle-selected-price {
-    font-size: 13px;
+    font-size: var(--font-size-base);
   }
 
   .bundle-name-input {
-    font-size: 14px;
-    padding: 8px 12px;
+    font-size: var(--font-size-md);
+    padding: var(--spacing-3) var(--spacing-5);
   }
 
   .bundle-build-btn {
-    padding: 12px;
-    font-size: 15px;
+    padding: var(--spacing-5);
+    font-size: var(--font-size-lg);
   }
 
   .bundle-products-grid h2 {
-    font-size: 18px;
-    margin-bottom: 16px;
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-7);
   }
   
   .bundle-product-card {
@@ -411,7 +444,7 @@
 @media (max-width: 640px) {
   .bundle-builder-page {
     width: calc(100% - 10px);
-    margin: 20px 5px;
-    padding: 20px 5px 60px;
+    margin: var(--spacing-9) 5px;
+    padding: var(--spacing-9) 5px 60px;
   }
 }

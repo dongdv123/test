@@ -1,50 +1,50 @@
 /* Footer Component */
 footer {
   width: 100%;
-  background: #fff8e2;
+  background: var(--color-bg-warm);
 }
 
 .footer-email-signup {
-  width: 80%;
+  width: var(--section-width);
   margin: 0 auto;
-  padding: 40px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: var(--spacing-13) 0;
+  border-bottom: 1px solid var(--color-overlay-light);
   text-align: center;
 }
 
 .footer-email-signup h4 {
-  font-size: 20px;
-  margin-bottom: 12px;
-  color: #0b3b29;
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-5);
+  color: var(--color-text-primary);
 }
 
 .footer-email-signup p {
-  font-size: 14px;
-  color: var(--stone);
-  margin-bottom: 20px;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-9);
 }
 
 .footer-email-form {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-5);
   max-width: 600px;
   margin: 0 auto;
   width: 100%;
-  padding: 4px;
-  background: #fff;
-  border: 2px solid var(--border);
-  border-radius: 0.75em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: var(--spacing-1);
+  background: var(--color-neutral-100);
+  border: var(--input-border-width) solid var(--color-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
   overflow: hidden;
 }
 
 .footer-email-form input {
   flex: 1;
-  padding: 16px 20px;
+  padding: var(--spacing-7) var(--spacing-9);
   border: none;
-  border-radius: 0.75em;
-  font-size: 16px;
+  border-radius: var(--card-radius);
+  font-size: var(--font-size-xl);
   outline: none;
   background: transparent;
   box-sizing: border-box;
@@ -56,20 +56,20 @@ footer {
 }
 
 .footer-email-form input::placeholder {
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .footer-email-form:focus-within {
-  border-color: #0c8a68;
-  box-shadow: 0 2px 12px rgba(12, 138, 104, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-primary-xl);
 }
 
 .footer-email-form button {
-  padding: 16px 32px;
+  padding: var(--spacing-7) var(--spacing-12);
   white-space: nowrap;
-  border-radius: 0.75em;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: var(--card-radius);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -80,50 +80,50 @@ footer {
 }
 
 .footer-email-message {
-  margin-top: 12px;
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 6px;
+  margin-top: var(--spacing-5);
+  font-size: var(--font-size-md);
+  padding: var(--spacing-3) var(--spacing-5);
+  border-radius: var(--radius-md);
 }
 
 .footer-email-message.success {
-  color: #0c8a68;
-  background: rgba(12, 138, 104, 0.1);
+  color: var(--color-primary);
+  background: var(--color-primary-10);
 }
 
 .footer-email-message.error {
-  color: #d32f2f;
-  background: rgba(211, 47, 47, 0.1);
+  color: var(--color-error-red);
+  background: var(--color-error-10);
 }
 
 .footer-top {
-  padding: 40px 0;
+  padding: var(--spacing-13) 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  width: 80%;
+  gap: var(--spacing-9);
+  width: var(--section-width);
   margin: 0 auto;
 }
 
 .footer-col h4 {
-  font-size: 16px;
-  margin-bottom: 12px;
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-5);
 }
 
 .footer-col ul {
   list-style: none;
   display: grid;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--stone);
+  gap: var(--spacing-2);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
 }
 
 .footer-bottom {
   margin-top: 0;
-  background: #faefd4;
-  padding: 18px;
+  background: var(--color-bg-warm-2);
+  padding: var(--spacing-8);
   text-align: center;
-  font-size: 13px;
-  color: #2c2c2c;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
 }
 

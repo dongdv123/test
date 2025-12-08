@@ -2,28 +2,28 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 999px;
-  padding: 14px 28px;
-  font-weight: 600;
+  gap: var(--spacing-4);
+  border-radius: var(--button-border-radius);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  font-weight: var(--button-font-weight);
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: var(--button-font-size);
 }
 
 .btn-primary {
-  background: var(--fern);
-  color: #fff;
-  box-shadow: 0 18px 35px rgba(12, 138, 104, 0.25);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-6xl);
 }
 
 .btn-secondary {
-  border: 1px solid #0c8a68;
-  border-radius: 999px;
-  padding: 12px 24px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  padding: var(--button-padding-y-sm) var(--button-padding-x-sm);
   background: transparent;
-  color: #0c8a68;
-  font-weight: 600;
+  color: var(--color-primary);
+  font-weight: var(--button-font-weight);
   cursor: pointer;
   text-decoration: none;
   display: inline-block;

@@ -2,9 +2,9 @@
 .product-card-body,
 .collection-product-card {
   position: relative;
-  background: #fff;
+  background: var(--color-neutral-100);
   border-radius: var(--card-radius);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-7xl);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -71,33 +71,33 @@
 
 .collection-badge-top {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  background: #0b6b44;
-  color: #fff;
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 600;
+  top: var(--spacing-5);
+  left: var(--spacing-5);
+  background: var(--color-primary-dark);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-2) var(--spacing-5);
+  border-radius: var(--radius-pill);
+  font-weight: var(--font-weight-semibold);
   z-index: 3;
 }
 
 .wishlist-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: var(--spacing-5);
+  right: var(--spacing-5);
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: none;
-  background: #fff;
-  font-size: 18px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  background: var(--color-neutral-100);
+  font-size: var(--font-size-2xl);
+  box-shadow: var(--shadow-3xl);
   cursor: pointer;
   z-index: 3;
 }
 .wishlist-btn.active {
-  background: #0b6b44;
+  background: var(--color-primary-dark);
   color: #fff;
 }
 

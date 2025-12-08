@@ -1,5 +1,5 @@
 import { shopifyCustomerRequest } from "../../../lib/shopifyCustomer";
-import { checkRateLimit, getClientIp } from "../../../lib/rateLimit";
+import { checkRateLimit, getClientIp } from "../../../lib/rateLimitRedis";
 
 const MUTATION = `
   mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
@@ -22,7 +22,8 @@ export default async function handler(req, res) {
   }
 
   const ip = getClientIp(req);
-  if (!checkRateLimit({ key: `login:${ip}`, windowMs: 60_000, max: 30 })) {
+  const rateOk = await checkRateLimit({ key: `login:${ip}`, windowMs: 60_000, max: 30 });
+  if (!rateOk) {
     return res.status(429).json({ message: "Too many attempts. Please wait and try again." });
   }
 
@@ -54,7 +55,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json(result.customerAccessToken);
   } catch (error) {
-    return res.status(500).json({ message: error.message || "Unable to sign in." });
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Unable to sign in. Please try again later." });
   }
 }
 

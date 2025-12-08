@@ -31,31 +31,31 @@
   /* Footer Email Form - Tablet */
   .footer-email-signup {
     width: 95%;
-    padding: 35px 16px;
+    padding: 35px var(--spacing-7);
     box-sizing: border-box;
   }
 
   .footer-email-signup h4 {
-    font-size: 19px;
+    font-size: var(--font-size-2xl);
   }
 
   .footer-email-form {
     max-width: 100%;
-    gap: 10px;
-    padding: 6px;
+    gap: var(--spacing-4);
+    padding: var(--spacing-2);
     box-sizing: border-box;
   }
 
   .footer-email-form input {
-    padding: 15px 18px;
-    font-size: 16px;
+    padding: var(--spacing-8) var(--spacing-8);
+    font-size: var(--font-size-xl);
     box-sizing: border-box;
     min-width: 0;
   }
 
   .footer-email-form button {
-    padding: 15px 24px;
-    font-size: 15px;
+    padding: var(--spacing-8) var(--spacing-10);
+    font-size: var(--font-size-lg);
     white-space: nowrap;
     flex-shrink: 0;
     box-sizing: border-box;
@@ -64,17 +64,17 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
-    padding: 14px 0;
+    gap: var(--spacing-5);
+    padding: var(--spacing-6) 0;
     flex-wrap: nowrap;
   }
 
   .logo {
     flex: 1;
     text-align: center;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-extrabold);
+    letter-spacing: var(--letter-spacing-tight);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -109,12 +109,12 @@
     width: 400px;
     max-width: 85vw;
     height: 100vh;
-    background: #f3eee2;
-    z-index: 2000;
+    background: var(--color-bg-tertiary);
+    z-index: var(--z-index-max);
     display: flex;
     flex-direction: column;
     transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
+    transition: var(--transition-transform);
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
     overflow-y: auto;
     overflow-x: hidden;
@@ -129,35 +129,35 @@
   /* Close button for tablet menu */
   .nav-close-btn {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: var(--spacing-7);
+    right: var(--spacing-7);
     width: 44px;
     height: 44px;
     min-width: 44px;
     min-height: 44px;
     border: none;
     background: transparent;
-    color: #0c8a68;
+    color: var(--color-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    z-index: 2001;
-    transition: background-color 0.2s, transform 0.1s;
+    border-radius: var(--radius-lg);
+    z-index: calc(var(--z-index-max) + 1);
+    transition: var(--transition-color), var(--transition-transform);
   }
 
   .nav-close-btn:hover {
-    background-color: rgba(12, 138, 104, 0.1);
+    background-color: var(--color-primary-10);
   }
 
   .nav-close-btn:active {
-    background-color: rgba(12, 138, 104, 0.2);
+    background-color: var(--color-primary-15);
     transform: scale(0.95);
   }
 
   .nav-close-btn .material-icons {
-    font-size: 28px;
+    font-size: var(--font-size-5xl);
   }
 
   /* Backdrop overlay */
@@ -167,9 +167,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1999;
-    animation: fadeIn 0.3s ease-in-out;
+    background: var(--color-overlay);
+    z-index: calc(var(--z-index-max) - 1);
+    animation: fadeIn var(--transition-slower) ease-in-out;
     cursor: pointer;
   }
 
@@ -185,9 +185,9 @@
   .nav-mobile-actions {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 76px 20px 20px;
-    border-bottom: 1px solid var(--border);
+    gap: var(--spacing-5);
+    padding: 76px var(--spacing-9) var(--spacing-9);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .nav-mobile-action {
@@ -195,15 +195,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: var(--spacing-3);
     background: rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-    font-weight: 600;
-    color: #0d291f;
+    border-radius: var(--input-border-radius);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary-dark);
     text-decoration: none;
     text-transform: lowercase;
-    font-size: 13px;
-    transition: all 0.2s ease;
+    font-size: var(--font-size-base);
+    transition: var(--transition-all);
     border: 1px solid transparent;
     min-height: 80px;
   }
@@ -215,25 +215,25 @@
 
   .nav-mobile-action span[aria-hidden="true"],
   .nav-mobile-action .material-icons {
-    font-size: 28px;
-    color: #0c8a68;
+    font-size: var(--font-size-5xl);
+    color: var(--color-primary);
     display: block;
   }
 
   .nav-mobile-action .wishlist-count {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: #c54a32;
-    color: #fff;
-    border-radius: 50%;
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    background: var(--color-error);
+    color: var(--color-text-on-primary);
+    border-radius: var(--radius-full);
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
   }
 
   .nav-mobile-action.wishlist-link {
@@ -258,9 +258,9 @@
     flex-direction: column;
     width: 100%;
     min-width: 100%;
-    background: #f3eee2;
+    background: var(--color-bg-tertiary);
     padding: 0;
-    transition: transform 0.3s ease-in-out;
+    transition: var(--transition-transform);
     will-change: transform;
     overflow-y: auto;
     overflow-x: hidden;
@@ -280,19 +280,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
+    padding: var(--spacing-9);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     cursor: pointer;
   }
 
   .nav-list .nav-link.has-dropdown::after {
     content: "chevron_right";
     font-family: 'Material Icons';
-    font-size: 24px;
-    color: #0c8a68;
+    font-size: var(--font-size-4xl);
+    color: var(--color-primary);
     font-weight: normal;
     font-style: normal;
     line-height: 1;
@@ -343,14 +343,14 @@
   .nav-submenu-back {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
+    gap: var(--spacing-5);
+    padding: var(--spacing-9);
+    border-bottom: 1px solid var(--color-border);
     background: transparent;
     border-top: none;
     border-left: none;
     border-right: none;
-    font-size: 18px;
+    font-size: var(--font-size-2xl);
     font-weight: 600;
     color: #111;
     cursor: pointer;
@@ -359,8 +359,8 @@
   }
 
   .nav-submenu-back .material-icons {
-    font-size: 24px;
-    color: #0c8a68;
+    font-size: var(--font-size-4xl);
+    color: var(--color-primary);
   }
 
   .nav-submenu-list {
@@ -373,11 +373,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
+    padding: var(--spacing-9);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     text-decoration: none;
     text-transform: lowercase;
     background: transparent;
@@ -619,11 +619,11 @@
   body.menu-open .nav {
     display: block;
     width: 100%;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin-top: 8px;
-    padding: 12px 0 6px;
-    background: #f3eee2;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-5) 0 var(--spacing-2);
+    background: var(--color-bg-tertiary);
     max-height: calc(100vh - 80px);
     overflow-y: auto;
     overflow-x: hidden;
@@ -717,9 +717,9 @@
   .nav-list {
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease-in-out;
+    transition: var(--transition-transform);
     width: 100%;
-    background: #f3eee2;
+    background: var(--color-bg-tertiary);
   }
 
   .nav-list-visible {
@@ -735,11 +735,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
+    padding: var(--spacing-9) var(--spacing-7);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     cursor: pointer;
   }
 
@@ -750,8 +750,8 @@
   .nav-list .nav-link.has-dropdown::after {
     content: "chevron_right";
     font-family: 'Material Icons';
-    font-size: 24px;
-    color: #0c8a68;
+    font-size: var(--font-size-4xl);
+    color: var(--color-primary);
     font-weight: normal;
     font-style: normal;
     line-height: 1;
@@ -779,10 +779,10 @@
     right: 0;
     width: 100%;
     min-height: 100%;
-    background: #f3eee2;
+    background: var(--color-bg-tertiary);
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease-in-out;
+    transition: var(--transition-transform);
     z-index: 1;
     overflow: visible;
   }
@@ -801,24 +801,24 @@
   .nav-submenu-back {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 20px 16px;
-    border-bottom: 1px solid var(--border);
+    gap: var(--spacing-5);
+    padding: var(--spacing-9) var(--spacing-7);
+    border-bottom: 1px solid var(--color-border);
     background: transparent;
     border-top: none;
     border-left: none;
     border-right: none;
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     cursor: pointer;
     width: 100%;
     text-align: left;
   }
 
   .nav-submenu-back .material-icons {
-    font-size: 24px;
-    color: #0c8a68;
+    font-size: var(--font-size-4xl);
+    color: var(--color-primary);
   }
 
   .nav-submenu-list {
@@ -831,11 +831,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
+    padding: var(--spacing-9) var(--spacing-7);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
     text-decoration: none;
     text-transform: lowercase;
     background: transparent;
@@ -852,8 +852,8 @@
   }
 
   .nav-submenu-link-with-children .material-icons {
-    font-size: 24px;
-    color: #0c8a68;
+    font-size: var(--font-size-4xl);
+    color: var(--color-primary);
   }
 
   .nav-submenu-link:last-child {

@@ -1,12 +1,14 @@
 import Layout from "../components/Layout";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
 import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
 export default function ProfilePage({ navItems }) {
+  const router = useRouter();
   const { user, isAuthenticated, loading, logout, token, refreshProfile } = useAuth();
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [addressForm, setAddressForm] = useState({
@@ -19,6 +21,19 @@ export default function ProfilePage({ navItems }) {
   });
   const [addressSubmitting, setAddressSubmitting] = useState(false);
 
+  // Redirect to previous page if not authenticated or logged out
+  useEffect(() => {
+    if (!loading && (!isAuthenticated || !user)) {
+      // Check if there's a previous page in history
+      if (typeof window !== 'undefined' && window.history.length > 1) {
+        router.back();
+      } else {
+        // If no history, redirect to home
+        router.push('/');
+      }
+    }
+  }, [loading, isAuthenticated, user, router]);
+
   if (loading) {
     return (
       <Layout navItems={navItems}>
@@ -29,12 +44,12 @@ export default function ProfilePage({ navItems }) {
     );
   }
 
+  // Don't render content if not authenticated (will redirect)
   if (!isAuthenticated || !user) {
     return (
       <Layout navItems={navItems}>
         <section className="profile-page container profile-empty">
-          <p>You need to sign in to view your account.</p>
-          <p>Use the sign-in button in the header.</p>
+          <p>Redirecting...</p>
         </section>
       </Layout>
     );
@@ -48,7 +63,19 @@ export default function ProfilePage({ navItems }) {
             <h1>{user.email}</h1>
             <p>Welcome back, {user.name}.</p>
           </div>
-          <button type="button" className="btn-secondary" onClick={logout}>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              logout();
+              // Redirect immediately after logout
+              if (typeof window !== 'undefined' && window.history.length > 1) {
+                router.back();
+              } else {
+                router.push('/');
+              }
+            }}
+          >
             sign out
           </button>
         </header>

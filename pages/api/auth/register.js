@@ -1,5 +1,5 @@
 import { shopifyCustomerRequest } from "../../../lib/shopifyCustomer";
-import { checkRateLimit, getClientIp } from "../../../lib/rateLimit";
+import { checkRateLimit, getClientIp } from "../../../lib/rateLimitRedis";
 import crypto from "crypto";
 
 const CREATE_MUTATION = `
@@ -37,7 +37,8 @@ export default async function handler(req, res) {
   }
 
   const ip = getClientIp(req);
-  if (!checkRateLimit({ key: `register:${ip}`, windowMs: 60_000, max: 10 })) {
+  const rateOk = await checkRateLimit({ key: `register:${ip}`, windowMs: 60_000, max: 10 });
+  if (!rateOk) {
     return res.status(429).json({ message: "Too many attempts. Please wait and try again." });
   }
 
@@ -47,13 +48,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validate name
-    const normalizedName = name.trim();
+    // Validate name - prevent XSS and limit length
+    const normalizedName = name.trim().slice(0, 100);
     if (!normalizedName) {
       return res.status(400).json({ message: "Please enter a valid name." });
     }
     if (normalizedName.length < 2) {
       return res.status(400).json({ message: "Name must be at least 2 characters long." });
+    }
+    if (normalizedName.length > 100) {
+      return res.status(400).json({ message: "Name must be less than 100 characters." });
     }
 
     // Validate email format
@@ -68,6 +72,11 @@ export default async function handler(req, res) {
     if (trimmedPassword.length < 8) {
       return res.status(400).json({ 
         message: "Password must be at least 8 characters long." 
+      });
+    }
+    if (trimmedPassword.length > 128) {
+      return res.status(400).json({ 
+        message: "Password must be less than 128 characters." 
       });
     }
 
@@ -101,7 +110,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ registered: true, token: tokenData.customerAccessToken });
   } catch (error) {
-    return res.status(500).json({ message: error.message || "Unable to register." });
+    console.error("Registration error:", error);
+    return res.status(500).json({ message: "Unable to register. Please try again later." });
   }
 }
 

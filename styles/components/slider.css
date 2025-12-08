@@ -60,7 +60,12 @@
 
 .slider-nav {
   position: absolute;
-  top: 50%;
+  /* Center on image wrapper instead of entire card */
+  /* Image wrapper has aspect-ratio 1:1 and takes up most of card height */
+  /* Approximate center of image: ~35-40% of card height */
+  /* Since image is square and card width = calc((100% - 80px) / 5), */
+  /* and image height = card width, we use a percentage that centers on image */
+  top: 35%;
   transform: translateY(-50%);
   width: 48px;
   height: 48px;
@@ -73,6 +78,7 @@
   cursor: pointer;
   background: #ede8da;
   color: #3e3a2f;
+  z-index: 2;
 }
 
 .slider-nav:disabled {

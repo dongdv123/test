@@ -49,141 +49,19 @@ const chips = [
 ];
 
 const fallbackNewItems = [
-  {
-    title: "best-selling",
-    price: "$32.00",
-    rating: "★★★★★ · 25",
-    img: "https://images.uncommongoods.com/product/56922/56922_1_640px.jpg",
-  },
-  {
-    title: "new",
-    price: "$48.00",
-    rating: "★★★★★ · 8",
-    img: "https://images.uncommongoods.com/product/56907/56907_1_640px.jpg",
-  },
-  {
-    title: "sports & outdoor play",
-    price: "$55.00",
-    rating: "★★★★☆ · 6",
-    img: "https://images.uncommongoods.com/product/56890/56890_1_640px.jpg",
-  },
-  {
-    title: "stocking stuffers",
-    price: "$28.00",
-    rating: "★★★★★ · 11",
-    img: "https://images.uncommongoods.com/product/56870/56870_1_640px.jpg",
-  },
-  {
-    title: "gifts for men",
-    price: "$118.00",
-    rating: "★★★★★ · 17",
-    img: "https://images.uncommongoods.com/product/56885/56885_1_640px.jpg",
-  },
-  {
-    title: "artisan candles",
-    price: "$36.00",
-    rating: "★★★★★ · 14",
-    img: "https://images.uncommongoods.com/product/56988/56988_1_640px.jpg",
-  },
+  
 ];
 
 const fallbackBestItems = [
-  {
-    title: "Your Name in a Snowflake Ornament",
-    price: "1,200,000 VND",
-    rating: "★★★★★ · 623",
-    img: "https://images.uncommongoods.com/product/56800/56800_1_640px.jpg",
-  },
-  {
-    title: "Paper Desk Pets",
-    price: "480,000 VND",
-    rating: "★★★★☆ · 5",
-    img: "https://images.uncommongoods.com/product/56940/56940_1_640px.jpg",
-  },
-  {
-    title: "Personalized Pet Portrait Wood Ornament",
-    price: "1,350,000 VND",
-    rating: "★★★★★ · 35",
-    img: "https://images.uncommongoods.com/product/56910/56910_1_640px.jpg",
-  },
-  {
-    title: "Experiment A Day Science Advent",
-    price: "1,350,000 VND",
-    rating: "★★★★☆ · 3",
-    img: "https://images.uncommongoods.com/product/56923/56923_1_640px.jpg",
-  },
-  {
-    title: "Mystery Prize Bath Bomb",
-    price: "420,000 VND",
-    rating: "★★★★☆ · 6",
-    img: "https://images.uncommongoods.com/product/56915/56915_1_640px.jpg",
-  },
+  
 ];
 
 const fallbackTrendingItems = [
-  {
-    title: "Coat of Arms Personalized Birth Print",
-    price: "4,350,000 VND",
-    rating: "★★★★★ · 39",
-    img: "https://images.uncommongoods.com/product/56981/56981_1_640px.jpg",
-  },
-  {
-    title: "Woodle Crossword Dice Game",
-    price: "1,170,000 VND",
-    rating: "★★★★★ · 2",
-    img: "https://images.uncommongoods.com/product/56955/56955_1_640px.jpg",
-  },
-  {
-    title: "Nostalgic Sports Nuts Sampler",
-    price: "2,070,000 VND",
-    rating: "★★★★★ · 8",
-    img: "https://images.uncommongoods.com/product/56963/56963_1_640px.jpg",
-  },
-  {
-    title: "Gardener's Daily Interactive QR Mug",
-    price: "960,000 VND",
-    rating: "★★★★★ · 1",
-    img: "https://images.uncommongoods.com/product/56958/56958_1_640px.jpg",
-  },
-  {
-    title: "Bookworm Rainbow Socks",
-    price: "510,000 VND",
-    rating: "★★★★★ · 4",
-    img: "https://images.uncommongoods.com/product/56918/56918_1_640px.jpg",
-  },
+ 
 ];
 
 const fallbackRecentItems = [
-  {
-    title: "Retro Games Coding Advent",
-    price: "1,150,000 VND",
-    rating: "★★★★☆ · 7",
-    img: "https://images.uncommongoods.com/product/56779/56779_1_640px.jpg",
-  },
-  {
-    title: "Crossbody Water Bottle Bag",
-    price: "780,000 VND",
-    rating: "★★★★★ · 21",
-    img: "https://images.uncommongoods.com/product/56859/56859_1_640px.jpg",
-  },
-  {
-    title: "24 Days of Tea Advent Calendar",
-    price: "1,320,000 VND",
-    rating: "★★★★★ · 71",
-    img: "https://images.uncommongoods.com/product/56788/56788_1_640px.jpg",
-  },
-  {
-    title: "Stitch a Day Advent Embroidery",
-    price: "950,000 VND",
-    rating: "★★★★☆ · 9",
-    img: "https://images.uncommongoods.com/product/56576/56576_1_640px.jpg",
-  },
-  {
-    title: "Little Photographer Kids Camera",
-    price: "1,480,000 VND",
-    rating: "★★★★★ · 4",
-    img: "https://images.uncommongoods.com/product/56972/56972_1_640px.jpg",
-  },
+  
 ];
 
 const shopColumns = [
@@ -500,10 +378,9 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
           <small>handmade focus</small>
           <h3>Wolf family wooden sculpture</h3>
           <p>
-            Tác phẩm khắc laser trên gỗ phong mô phỏng gia đình sói, điểm nhấn trái tim sơn tay và chữ khắc tên từng
-            thành viên giúp khách cảm nhận hơi ấm thủ công độc bản.
+            Laser-engraved maple wood sculpture depicting a wolf family, featuring hand-painted heart accents and personalized name engravings for each member, allowing customers to experience the warmth of unique handmade craftsmanship.
           </p>
-          <button className="btn btn-primary">khám phá đồ handmade →</button>
+          <button className="btn btn-primary">explore handmade items →</button>
         </div>
       </section>
 
@@ -687,7 +564,9 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
   );
 }
 
-export async function getServerSideProps() {
+// Convert to ISR (Incremental Static Regeneration) for better performance
+// Pages are pre-rendered at build time and revalidated every 60 seconds
+export async function getStaticProps() {
   try {
     const [products, newProducts, collections, menuItems] = await Promise.all([
       fetchShopifyProducts(120),
@@ -705,6 +584,9 @@ export async function getServerSideProps() {
         shopifyCollections: collections,
         shopifyMenuItems: menuItems,
       },
+      // Revalidate every 60 seconds - pages will be regenerated in the background
+      // This allows the page to be served from CDN while staying fresh
+      revalidate: 60,
     };
   } catch (error) {
     console.error("Failed to sync Shopify data from Shopify API", error);
@@ -715,6 +597,8 @@ export async function getServerSideProps() {
         shopifyCollections: [],
         shopifyMenuItems: [],
       },
+      // Even on error, revalidate after 60 seconds to retry
+      revalidate: 60,
     };
   }
 }

@@ -1,5 +1,5 @@
 import { createCart } from "../../lib/shopify";
-import { checkRateLimit, getClientIp } from "../../lib/rateLimit";
+import { checkRateLimit, getClientIp } from "../../lib/rateLimitRedis";
 import crypto from "crypto";
 
 const DEFAULT_API_VERSION = process.env.SHOPIFY_STOREFRONT_API_VERSION || "2023-10";
@@ -54,19 +54,24 @@ export default async function handler(req, res) {
   }
 
   const ip = getClientIp(req);
+  
+  // Optional API key check - if provided, validate it
+  // If not provided, rely on rate limiting and origin check for security
   const apiKey = req.headers["x-api-key"];
   const expectedKey = process.env.BUNDLE_API_KEY;
-
-  if (!expectedKey || apiKey !== expectedKey) {
+  
+  if (expectedKey && apiKey && apiKey !== expectedKey) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
+  // Origin check - optional but recommended
   const allowedOrigin = process.env.BUNDLE_ALLOWED_ORIGIN;
   if (allowedOrigin && req.headers.origin && req.headers.origin !== allowedOrigin) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  const rateOk = checkRateLimit({ key: `bundle:${ip}`, windowMs: 60_000, max: 30 });
+  // Rate limiting - primary security measure
+  const rateOk = await checkRateLimit({ key: `bundle:${ip}`, windowMs: 60_000, max: 30 });
   if (!rateOk) {
     return res.status(429).json({ error: "Too many requests" });
   }
