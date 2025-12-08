@@ -27,6 +27,39 @@
     width: 95% !important;
     margin: 0 auto;
   }
+
+  /* Footer Email Form - Tablet */
+  .footer-email-signup {
+    width: 95%;
+    padding: 35px 16px;
+    box-sizing: border-box;
+  }
+
+  .footer-email-signup h4 {
+    font-size: 19px;
+  }
+
+  .footer-email-form {
+    max-width: 100%;
+    gap: 10px;
+    padding: 6px;
+    box-sizing: border-box;
+  }
+
+  .footer-email-form input {
+    padding: 15px 18px;
+    font-size: 16px;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .footer-email-form button {
+    padding: 15px 24px;
+    font-size: 15px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
   .header-top {
     display: flex;
     flex-direction: row;
@@ -1134,6 +1167,54 @@
 
   .product-gallery-toggle-btn .material-icons {
     font-size: 20px;
+  }
+
+  /* Footer Email Form - Mobile */
+  .footer-email-signup {
+    width: 95%;
+    padding: 30px 16px;
+    box-sizing: border-box;
+  }
+
+  .footer-email-signup h4 {
+    font-size: 18px;
+  }
+
+  .footer-email-signup p {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .footer-email-form {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .footer-email-form input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 0.5em;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .footer-email-form button {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 15px;
+    border-radius: 0.5em;
+    white-space: normal;
+    box-sizing: border-box;
+  }
+
+  .footer-email-message {
+    font-size: 13px;
+    padding: 6px 10px;
+    word-wrap: break-word;
   }
 }
 
