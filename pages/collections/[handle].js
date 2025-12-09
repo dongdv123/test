@@ -4,7 +4,8 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Layout from "../../components/Layout";
 import WishlistButton from "../../components/WishlistButton";
 import FeaturedReviews from "../../components/FeaturedReviews";
-import { fetchCollectionByHandle, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../../lib/shopify";
+import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../../lib/shopify";
+import { fetchCollectionByHandleLightweight } from "../../lib/shopifyLightweight";
 import { normalizeProduct } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { getNavItems } from "../../lib/navUtils";
@@ -258,7 +259,7 @@ export default function CollectionPage({ collection, navItems }) {
   return (
     <>
       <Head>
-        <title>{collection.title} | Gikzo</title>
+        <title>{String(collection?.title || 'Collection')} | Gikzo</title>
         <meta name="description" content={collection.description || `Browse ${collection.title} collection at Gikzo`} />
         <meta property="og:title" content={collection.title} />
         <meta property="og:description" content={collection.description || collection.title} />
@@ -509,8 +510,8 @@ export async function getStaticProps({ params }) {
 
   try {
     const [collection, navCollections, menuItems] = await Promise.all([
-      fetchCollectionByHandle(handle, 48),
-      fetchShopifyCollections(20),
+      fetchCollectionByHandleLightweight(handle, 20), // Reduced from 24 to 20, using lightweight fields
+      fetchShopifyCollections(15), // Reduced from 20 to 15
       fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
         console.error("Failed to fetch menu:", err);
         return [];

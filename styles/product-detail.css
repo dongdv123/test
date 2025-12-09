@@ -719,6 +719,7 @@
   gap: 16px;
   max-width: var(--site-max-width);
   margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
 .product-sticky-price {
@@ -735,7 +736,7 @@
   color: var(--color-text-on-primary);
   border: none;
   border-radius: var(--card-radius);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   cursor: pointer;
@@ -2253,6 +2254,7 @@
   flex: 1;
   justify-content: center;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .product-sticky-add-btn,
@@ -2266,7 +2268,7 @@
 
 .product-sticky-buy-btn {
   background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   border-radius: var(--card-radius);
 }
 
@@ -2440,13 +2442,14 @@
   }
 
   .product-sticky-cta-content {
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
-    align-items: stretch;
+    align-items: center;
     max-width: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
+    flex-wrap: nowrap;
   }
 
   .product-sticky-price {
@@ -2454,10 +2457,11 @@
   }
 
   .sticky-cta-buttons {
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
     width: 100%;
     align-items: center;
+    flex-wrap: nowrap;
   }
 
   .product-sticky-add-btn,

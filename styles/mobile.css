@@ -904,7 +904,11 @@
   }
 
   .section-head {
-    font-size: 28px;
+    font-size: 28px !important;
+  }
+
+  .trending-header .section-head .trending-break {
+    display: block;
   }
 
   .hero-feature,

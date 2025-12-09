@@ -256,7 +256,6 @@ section {
 }
 
 .trending-header .section-head {
-  display: flex;
   align-items: center;
   gap: var(--spacing-5);
   font-size: var(--font-size-6xl);

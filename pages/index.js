@@ -5,7 +5,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useSlider } from "../hooks/useSlider";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
-import { fetchShopifyProducts, fetchNewProducts, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { fetchShopifyProductsLightweight, fetchNewProductsLightweight } from "../lib/shopifyLightweight";
 import { normalizeProduct } from "../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { getNavItems } from "../lib/navUtils";
@@ -333,9 +334,9 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
       </section>
       <section className="section-shell slider-full">
         <div className="trending-header">
-          <div className="section-head">
-            <span className="material-icons" style={{ fontSize: '26px' }}>trending_up</span> Today's Trending Searches
-          </div>
+          <h2 className="section-head">
+            <span className="material-icons">trending_up</span> Today's <span className="trending-break">Trending Searches</span>
+          </h2>
           <div className="trend-tabs">
             {trendTabs.map((tab) => (
               <button
@@ -469,7 +470,6 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
               </p>
               <button className="btn btn-primary">shop now</button>
             </div>
-            <img src="https://images.uncommongoods.com/product/56993/56993_1_940px.jpg" alt="holiday gifts" loading="lazy" />
           </div>
         </div>
       </section>
@@ -569,9 +569,9 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
 export async function getStaticProps() {
   try {
     const [products, newProducts, collections, menuItems] = await Promise.all([
-      fetchShopifyProducts(120),
-      fetchNewProducts(20), // Fetch new products (sorted by CREATED_AT)
-      fetchShopifyCollections(50), // Fetch more collections to ensure menu images are available
+      fetchShopifyProductsLightweight(40), // Reduced from 120 to 40, using lightweight fields
+      fetchNewProductsLightweight(12), // Reduced from 20 to 12, using lightweight fields
+      fetchShopifyCollections(30), // Reduced from 50 to 30
       fetchShopifyMenuAsNavItems("main-menu").catch((err) => {
         console.error("Failed to fetch menu:", err);
         return [];
