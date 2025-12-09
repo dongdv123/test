@@ -7,6 +7,7 @@ import { fetchProductByHandle, fetchShopifyCollections, fetchShopifyMenuAsNavIte
 import { formatPrice } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { getNavItems } from "../../lib/navUtils";
+import { getBestInstallmentOption } from "../../lib/shopifyInstallments";
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { useSlider } from "../../hooks/useSlider";
@@ -83,6 +84,8 @@ export default function ProductDetailPage({ product, navItems }) {
   const [notifyEmail, setNotifyEmail] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [countdownTime, setCountdownTime] = useState(null);
+  const [installmentOption, setInstallmentOption] = useState(null);
+  const [isLoadingInstallment, setIsLoadingInstallment] = useState(false);
 
   // Check if product has countdown tag (used in both useEffect and render)
   const hasCountdown = useMemo(() => {
@@ -136,6 +139,63 @@ export default function ProductDetailPage({ product, navItems }) {
     decrementQuantity,
     setQuantityValue
   } = useProductVariant(product);
+
+  // Fetch installment pricing when variant or quantity changes
+  useEffect(() => {
+    // Only run on client-side
+    if (typeof window === 'undefined') return;
+    
+    if (!activeVariant?.id) {
+      setInstallmentOption(null);
+      setIsLoadingInstallment(false);
+      return;
+    }
+
+    let cancelled = false;
+    
+    // Debounce API call
+    const timeoutId = setTimeout(() => {
+      setIsLoadingInstallment(true);
+      
+      // Call API route instead of direct function (for server-side env vars)
+      fetch("/api/installment-pricing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          variantId: activeVariant.id,
+          quantity: quantity,
+        }),
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (cancelled) return;
+          
+          if (result?.data) {
+            const bestOption = getBestInstallmentOption(result.data);
+            setInstallmentOption(bestOption);
+          } else {
+            setInstallmentOption(null);
+          }
+        })
+        .catch((error) => {
+          if (cancelled) return;
+          // Silently fail - fallback to hardcoded pricing
+          setInstallmentOption(null);
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setIsLoadingInstallment(false);
+          }
+        });
+    }, 300); // 300ms debounce
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [activeVariant?.id, quantity]);
 
   // Find collection link for category - only link if collection exists
   const categoryLink = useMemo(() => {
@@ -439,12 +499,6 @@ export default function ProductDetailPage({ product, navItems }) {
     setShowDrawer(true); // Open drawer immediately to show loading state
 
     const unitPrice = Number(activeVariant?.price ?? product.priceRange?.min?.amount ?? 0);
-    
-    console.log("Adding to cart:", {
-      variantId: activeVariant.id,
-      variant: activeVariant,
-      quantity,
-    });
 
     try {
       await addItem(
@@ -516,7 +570,7 @@ export default function ProductDetailPage({ product, navItems }) {
     }
 
     // TODO: Connect to actual back-in-stock notification API
-    console.log('Notify when available:', { email: notifyEmail, productId: product.id, variantId: activeVariant?.id });
+    // Notify when available functionality - to be implemented
     alert(`We'll notify you at ${notifyEmail} when this product is back in stock!`);
     setShowNotifyModal(false);
     setNotifyEmail('');
@@ -1373,14 +1427,29 @@ export default function ProductDetailPage({ product, navItems }) {
             {/* Payment Options & Gift Wrap */}
             {activeVariant?.available && (
               <div className="product-payment-options">
-                <div className="payment-installments">
-                  <span className="installment-text">or 4 interest-free payments of </span>
-                  <strong className="installment-price">
-                    {formatPrice((Number(activeVariant?.price || product.priceRange?.min?.amount || 0) / 4), currency)}
-                  </strong>
-                  <span className="installment-provider"> with </span>
-                  <span className="payment-logo">💳 Affirm</span>
-                </div>
+                {isLoadingInstallment ? (
+                  <div className="payment-installments">
+                    <span className="installment-text">Loading payment options...</span>
+                  </div>
+                ) : installmentOption ? (
+                  <div className="payment-installments">
+                    <span className="installment-text">or {installmentOption.count} interest-free payments of </span>
+                    <strong className="installment-price">
+                      {installmentOption.formattedInstallment}
+                    </strong>
+                    <span className="installment-provider"> with </span>
+                    <span className="payment-logo">💳 Shop Pay</span>
+                  </div>
+                ) : (
+                  <div className="payment-installments">
+                    <span className="installment-text">or 4 interest-free payments of </span>
+                    <strong className="installment-price">
+                      {formatPrice((Number(activeVariant?.price || product.priceRange?.min?.amount || 0) / 4), currency)}
+                    </strong>
+                    <span className="installment-provider"> with </span>
+                    <span className="payment-logo">💳 Affirm</span>
+                  </div>
+                )}
 
                 <label className="gift-option">
                   <input type="checkbox" />
