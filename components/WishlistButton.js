@@ -27,7 +27,11 @@ function WishlistButton({ product, className }) {
       aria-label={isActive ? "Remove from wishlist" : "Add to wishlist"}
       onClick={handleClick}
     >
-      {isActive ? "♥" : "♡"}
+      {isActive ? (
+        <span className="material-icons" style={{ fontSize: '20px' }}>favorite</span>
+      ) : (
+        <span className="material-icons" style={{ fontSize: '20px' }}>favorite_border</span>
+      )}
     </button>
   );
 }

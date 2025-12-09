@@ -444,6 +444,9 @@
   .drawer-go-to-cart {
     flex: 1;
     width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -454,6 +457,9 @@
   width: 100%;
   text-align: center;
   justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .drawer-keep-shopping:hover {
@@ -468,6 +474,9 @@
   width: 100%;
   text-align: center;
   justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .drawer-go-to-cart:hover {

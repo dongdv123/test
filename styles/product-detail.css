@@ -8,10 +8,50 @@
   right: var(--spacing-7);
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: var(--transition-all);
+  overflow: visible;
+  z-index: 12;
+}
+
+.product-wishlist-button .material-icons {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--color-text-primary);
+  transition: var(--transition-all);
+  display: block;
+  width: 22px;
+  height: 22px;
 }
 
 .product-wishlist-button.active {
   background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.product-wishlist-button.active .material-icons {
+  color: var(--color-text-on-primary);
+}
+
+.product-wishlist-button:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.product-wishlist-button:hover .material-icons {
+  color: var(--color-primary-dark);
+}
+
+.product-wishlist-button.active:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.product-wishlist-button.active:hover .material-icons {
   color: var(--color-text-on-primary);
 }
 
@@ -366,29 +406,30 @@
 .product-options {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-5);
+  gap: var(--spacing-4);
 }
 
 .option-label {
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary-dark);
   margin-bottom: var(--spacing-1);
+  font-size: var(--font-size-base);
 }
 
 .option-values {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
 }
 
 .option-values button {
-  border: 2px solid var(--color-border-light);
+  border: none;
   border-radius: var(--radius-pill);
-  padding: var(--spacing-4) var(--spacing-6);
-  min-height: 44px;
+  padding: var(--spacing-3) var(--spacing-5);
+  min-height: 40px;
   text-transform: lowercase;
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   color: var(--color-primary-dark);
   background: transparent;
   cursor: pointer;
@@ -396,12 +437,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-3);
+  gap: var(--spacing-2);
   position: relative;
 }
 
 .option-values button:hover {
-  border-color: var(--color-primary);
   background: var(--color-primary-10);
   transform: translateY(-1px);
 }
@@ -409,7 +449,6 @@
 .option-values button.active {
   background: var(--color-primary);
   color: var(--color-text-on-primary);
-  border-color: var(--color-primary);
   box-shadow: var(--shadow-primary-sm);
 }
 
@@ -417,12 +456,12 @@
 .option-values button:has(.option-value-with-image) {
   flex-direction: column;
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
-  min-width: 80px;
-  min-height: 80px;
-  max-width: 80px;
-  max-height: 80px;
+  width: 70px;
+  height: 70px;
+  min-width: 70px;
+  min-height: 70px;
+  max-width: 70px;
+  max-height: 70px;
   padding: 0;
   aspect-ratio: 1 / 1;
   display: flex;
@@ -433,8 +472,7 @@
 .option-values button.active:has(.option-value-with-image) {
   background: var(--color-primary-10);
   color: var(--color-primary-dark);
-  border-color: var(--color-primary);
-  border-width: 2px;
+  border: 2px solid var(--color-primary);
   box-shadow: var(--shadow-primary-sm);
 }
 
@@ -632,8 +670,6 @@
   content: "•";
   position: absolute;
   left: 0;
-  color: var(--color-text-light);
-  font-size: var(--font-size-xl);
 }
 
 .product-cta-row {
@@ -655,6 +691,7 @@
 .product-add-to-cart-btn {
   border-radius: var(--card-radius);
   height: 52px;
+  min-height: 52px;
   padding: 0 var(--spacing-10);
   display: flex;
   align-items: center;
@@ -731,7 +768,8 @@
 
 .product-sticky-add-btn {
   flex: 1;
-  height: 48px;
+  height: 52px;
+  min-height: 52px;
   background: var(--color-text-primary);
   color: var(--color-text-on-primary);
   border: none;
@@ -1646,9 +1684,9 @@
 
   .product-cta-row .btn-primary {
     height: 56px;
-    font-size: 15px;
+    font-size: 14px;
     padding: 0 24px;
-    min-height: 56px;
+    min-height: 44px;
   }
 }
 
@@ -1716,9 +1754,38 @@
     width: 100%;
   }
 
+  .product-options {
+    gap: 16px;
+  }
+
+  .option-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .option-values {
+    gap: 10px;
+  }
+
   .option-values button {
-    min-height: 44px;
-    padding: 12px 20px;
+    min-height: 40px;
+    padding: 8px 16px;
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .option-values button:has(.option-value-with-image) {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+    max-width: 60px;
+    max-height: 60px;
+  }
+
+  .option-value-with-image img {
+    width: 100%;
+    height: 100%;
   }
 }
 
@@ -2135,8 +2202,8 @@
 
 .product-buy-now-btn {
   border-radius: var(--card-radius);
-  height: 56px;
-  min-height:56px;
+  height: 52px;
+  min-height:52px;
   padding: 0 var(--spacing-10);
   display: flex;
   align-items: center;
@@ -2261,6 +2328,8 @@
 .product-sticky-buy-btn {
   flex: 1;
   min-width: 120px;
+  height: 52px;
+  min-height: 52px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2441,24 +2510,30 @@
     max-width: 90vw;
   }
 
+  .product-sticky-cta {
+    padding: var(--spacing-2) 5px;
+  }
+
   .product-sticky-cta-content {
     flex-direction: row;
-    gap: 12px;
+    gap: 6px;
     align-items: center;
     max-width: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
     flex-wrap: nowrap;
+    box-sizing: border-box;
   }
 
   .product-sticky-price {
     text-align: center;
+    font-size: var(--font-size-xl);
   }
 
   .sticky-cta-buttons {
     flex-direction: row;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
     align-items: center;
     flex-wrap: nowrap;
@@ -2467,12 +2542,19 @@
   .product-sticky-add-btn,
   .product-sticky-buy-btn {
     width: 100%;
+    height: 44px;
+    min-height: 44px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .product-buy-now-btn,
   .product-add-to-cart-btn {
     font-size: 14px;
-    height: 48px;
+    height: 52px;
+    min-height: 52px;
   }
 
   .savings-badge {

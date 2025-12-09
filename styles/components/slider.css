@@ -51,7 +51,7 @@
 }
 
 .slider-card-body h4 {
-  font-size: 15px;
+  font-size: 15px !important;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;

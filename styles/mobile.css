@@ -7,7 +7,6 @@
   .handmade-spotlight,
   .story-section,
   .maker-feature,
-  .what-section,
   .better-give,
   .slider-full,
   .recent-section,
@@ -466,6 +465,48 @@
 }
 
 @media (max-width: 768px) {
+  /* Ensure minimum readable font sizes on mobile (WCAG 2.1 AA standard: minimum 16px for body text) */
+  body {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Ensure buttons have readable text on mobile */
+  .btn {
+    font-size: 14px;
+    min-height: 44px; /* Minimum touch target size */
+  }
+
+  /* Ensure small text is still readable */
+  small,
+  .small-text {
+    font-size: 12px;
+  }
+
+  /* Ensure labels and form text are readable */
+  label,
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Adjust paragraph text sizes for better readability */
+  .hero-copy p {
+    font-size: 18px;
+  }
+
+  .spotlight-copy p,
+  .story-copy p,
+  .maker-copy p,
+  .better-give p {
+    font-size: 16px;
+  }
+
   .collection-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
@@ -903,8 +944,33 @@
     overflow: hidden;
   }
 
-  .section-head {
+  /* Reduce heading sizes on mobile */
+  h1 {
     font-size: 28px !important;
+  }
+
+  h2 {
+    font-size: 24px !important;
+  }
+
+  h3 {
+    font-size: 20px !important;
+  }
+
+  h4 {
+    font-size: 18px !important;
+  }
+
+  h5 {
+    font-size: 16px !important;
+  }
+
+  h6 {
+    font-size: 14px !important;
+  }
+
+  .section-head {
+    font-size: 24px !important;
   }
 
   .trending-header .section-head .trending-break {
@@ -923,7 +989,123 @@
   }
 
   .hero-copy h1 {
-    font-size: 32px;
+    font-size: 28px;
+  }
+
+  .collection-page-header h1 {
+    font-size: 28px;
+  }
+
+  .spotlight-copy h3 {
+    font-size: 24px;
+  }
+
+  .story-copy h2 {
+    font-size: 28px;
+  }
+
+  .maker-copy h3 {
+    font-size: 24px;
+  }
+
+  .holiday-cta h3 {
+    font-size: 28px;
+  }
+
+  .better-give h3 {
+    font-size: 24px;
+  }
+
+  /* Additional heading styles for mobile */
+  .recent-header h2 {
+    font-size: 24px;
+  }
+
+  .cart-header h1 {
+    font-size: 24px !important;
+  }
+
+  .product-info h1 {
+    font-size: 20px;
+  }
+
+  .product-details-main h2 {
+    font-size: 20px;
+  }
+
+  .bundle-title {
+    font-size: 18px;
+  }
+
+  .product-review-title {
+    font-size: 18px;
+  }
+
+  .cart-bundle-name {
+    font-size: 18px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .cart-items {
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .cart-bundle-group {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 5px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .cart-bundle-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cart-bundle-name {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-bundle-remove {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .cart-bundle-item {
+    margin-left: 0;
+    border-left: none;
+    padding-left: 5px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border-lighter);
+  }
+
+  .cart-bundle-item:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .sort-filter-title {
+    font-size: 14px;
+  }
+
+  /* Page-specific headings */
+  .checkout-page h1,
+  .profile-page h1,
+  .gift-finder-page h1 {
+    font-size: 24px !important;
+  }
+
+  .checkout-page h2,
+  .profile-page h2,
+  .gift-finder-page h2 {
+    font-size: 20px !important;
   }
 
   .quick-row {
@@ -964,7 +1146,8 @@
     gap: 0;
     overflow: hidden;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-    height: 100%;
+    height: auto;
+    min-height: 200px;
     display: flex;
   }
 
@@ -991,6 +1174,10 @@
     text-align: center;
     flex: 1;
     min-height: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
   }
 
   .container {
@@ -1007,7 +1194,12 @@
   .handmade-spotlight,
   .story-section,
   .maker-feature,
-  .what-section,
+  .what-section {
+    width: calc(100% - 10px);
+    margin: 0 5px;
+    padding: 30px 5px;
+  }
+
   .better-give {
     width: calc(100% - 10px);
     margin: 0 5px;
@@ -1033,6 +1225,42 @@
     grid-template-columns: 1fr;
   }
 
+  .what-grid article {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-5);
+    text-align: left;
+  }
+
+  .what-grid span {
+    width: 74px;
+    height: 74px;
+    min-width: 74px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #0c3b23;
+    background: #fff;
+    border: 2px solid #cde2d8;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .what-grid article > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .what-grid article h4,
+  .what-grid article p {
+    margin: 0;
+    text-align: left;
+  }
+
   .recent-section {
     width: calc(100% - 10px);
     margin: 0 5px;
@@ -1041,6 +1269,18 @@
 
   .recent-header {
     padding: 0 20px;
+  }
+
+  .recent-header h2 {
+    text-align: center;
+    width: 100%;
+  }
+
+  .recent-footer {
+    padding: 0 20px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .recent-carousel {
@@ -1093,10 +1333,38 @@
     width: 100%;
   }
 
+  .product-options {
+    gap: 16px;
+  }
+
+  .option-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .option-values {
+    gap: 10px;
+  }
+
   .option-values button {
-    min-height: 44px;
-    padding: 12px 20px;
-    font-size: 16px;
+    min-height: 40px;
+    padding: 8px 16px;
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .option-values button:has(.option-value-with-image) {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+    max-width: 60px;
+    max-height: 60px;
+  }
+
+  .option-value-with-image img {
+    width: 100%;
+    height: 100%;
   }
 
   .product-hook {

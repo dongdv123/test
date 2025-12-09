@@ -91,13 +91,49 @@
   border-radius: var(--radius-full);
   border: none;
   background: var(--color-neutral-100);
-  font-size: var(--font-size-2xl);
   box-shadow: var(--shadow-3xl);
   cursor: pointer;
-  z-index: 3;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: var(--transition-all);
+  overflow: visible;
 }
+
+.wishlist-btn .material-icons {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-text-primary);
+  transition: var(--transition-all);
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
 .wishlist-btn.active {
   background: var(--color-primary-dark);
+}
+
+.wishlist-btn.active .material-icons {
+  color: #fff;
+}
+
+.wishlist-btn:hover {
+  background: var(--color-primary-10);
+  transform: scale(1.1);
+}
+
+.wishlist-btn:hover .material-icons {
+  color: var(--color-primary-dark);
+}
+
+.wishlist-btn.active:hover {
+  background: var(--color-primary-dark);
+}
+
+.wishlist-btn.active:hover .material-icons {
   color: #fff;
 }
 
@@ -127,7 +163,7 @@
 }
 
 .collection-card-body h4 {
-  font-size: 17px;
+  font-size: 17px !important;
   line-height: 1.4;
   color: #123325;
   white-space: nowrap;

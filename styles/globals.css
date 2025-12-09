@@ -111,9 +111,11 @@ section {
   gap: var(--spacing-5);
   background: rgba(255, 255, 255, 0.9);
   border-radius: var(--card-radius);
-  padding: var(--spacing-3) var(--spacing-7);
+  padding: 4px 5px;
   scroll-snap-align: start;
   box-shadow: var(--shadow-xl);
+  min-height: 72px;
+  height: 72px;
 }
 
 .quick-card.skeleton-quick-card {
@@ -121,8 +123,8 @@ section {
 }
 
 .quick-card img {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: var(--card-radius);
   object-fit: cover;
   flex-shrink: 0;
@@ -133,6 +135,11 @@ section {
   text-transform: lowercase;
   color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 .hero-feature {
@@ -853,7 +860,14 @@ section {
   color: #1a4731;
 }
 
-.recent-header a {
+.recent-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding: 0 40px;
+}
+
+.recent-footer a {
   font-size: 14px;
   color: var(--fern);
   text-decoration: underline;

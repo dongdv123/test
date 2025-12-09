@@ -67,19 +67,6 @@ export default function CollectionPage({ collection, navItems }) {
     return collections;
   }, [navItems, collection]);
   
-  // Debug: Check if productType is available
-  useEffect(() => {
-    if (allProducts.length > 0) {
-      console.log('[DEBUG] Sample products after normalization:', allProducts.slice(0, 5).map(p => ({
-        title: p.title,
-        productType: p.productType,
-        productTypeType: typeof p.productType,
-        hasProductType: !!p.productType,
-        productTypeLength: (p.productType || "").length
-      })));
-      console.log('[DEBUG] All product types found:', [...new Set(allProducts.map(p => p.productType).filter(Boolean))]);
-    }
-  }, [allProducts]);
   
   // State for sort/filter
   const [isSortFilterOpen, setIsSortFilterOpen] = useState(false);
@@ -96,14 +83,7 @@ export default function CollectionPage({ collection, navItems }) {
         types.add(productType);
       }
     });
-    const result = Array.from(types).sort();
-    // Debug: Log product types
-    console.log('Available product types:', result);
-    console.log('Sample products with types:', allProducts.slice(0, 3).map(p => ({
-      title: p.title,
-      productType: p.productType
-    })));
-    return result;
+    return Array.from(types).sort();
   }, [allProducts]);
   
   // Filter and sort products
@@ -113,9 +93,6 @@ export default function CollectionPage({ collection, navItems }) {
     // Filter by product type
     if (selectedProductType) {
       const selectedTypeNormalized = selectedProductType.trim().toLowerCase();
-      console.log('[FILTER] Filtering by product type:', selectedTypeNormalized);
-      console.log('[FILTER] Products before filter:', filtered.length);
-      console.log('[FILTER] All product types in collection:', productTypes);
       
       filtered = filtered.filter((product) => {
         const productType = (product.productType || "").trim();
@@ -123,21 +100,8 @@ export default function CollectionPage({ collection, navItems }) {
           return false;
         }
         const productTypeNormalized = productType.toLowerCase();
-        const matches = productTypeNormalized === selectedTypeNormalized;
-        
-        console.log('[FILTER] Checking:', {
-          productTitle: product.title,
-          productType: productType,
-          productTypeNormalized: productTypeNormalized,
-          selectedTypeNormalized: selectedTypeNormalized,
-          matches: matches
-        });
-        
-        return matches;
+        return productTypeNormalized === selectedTypeNormalized;
       });
-      
-      console.log('[FILTER] Products after filter:', filtered.length);
-      console.log('[FILTER] Filtered products:', filtered.map(p => p.title));
     }
     
     // Sort products
@@ -229,18 +193,10 @@ export default function CollectionPage({ collection, navItems }) {
     }
     
     const trimmedType = (productType || "").trim();
-    console.log('[FILTER] handleFilterChange called:', { 
-      productType, 
-      trimmedType, 
-      currentSelected: selectedProductType,
-      productTypes: productTypes
-    });
     
     if (selectedProductType && selectedProductType.trim().toLowerCase() === trimmedType.toLowerCase()) {
-      console.log('[FILTER] Deselecting filter');
       setSelectedProductType(null);
     } else {
-      console.log('[FILTER] Setting filter to:', trimmedType);
       setSelectedProductType(trimmedType);
     }
     
@@ -349,7 +305,6 @@ export default function CollectionPage({ collection, navItems }) {
                               type="button"
                               className={`sort-filter-option ${selectedProductType && selectedProductType.trim().toLowerCase() === type.trim().toLowerCase() ? "active" : ""}`}
                               onClick={(e) => {
-                                console.log('[FILTER] Button clicked:', type);
                                 handleFilterChange(type, e);
                               }}
                             >
