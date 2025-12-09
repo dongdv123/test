@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState, useMemo, useRef, useEffect } from "react";
 import Layout from "../../components/Layout";
-import WishlistButton from "../../components/WishlistButton";
+import LazyCollectionProductCard from "../../components/LazyCollectionProductCard";
 import FeaturedReviews from "../../components/FeaturedReviews";
 import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../../lib/shopify";
 import { fetchCollectionByHandleLightweight } from "../../lib/shopifyLightweight";
@@ -248,7 +248,11 @@ export default function CollectionPage({ collection, navItems }) {
                           ? relatedCollection.image 
                           : (relatedCollection.image.src || relatedCollection.image.url)} 
                         alt={relatedCollection.title} 
-                        className="interest-category-thumb" 
+                        className="interest-category-thumb"
+                        loading="lazy"
+                        width="200"
+                        height="200"
+                        decoding="async"
                       />
                     ) : (
                       <div className="interest-category-thumb-placeholder" />
@@ -343,33 +347,14 @@ export default function CollectionPage({ collection, navItems }) {
                   {firstRowProducts.map((product, index) => {
                   const defaults = badgePresets[index % badgePresets.length];
                   return (
-                    <article className="collection-product-card collection-card-flat" key={product.id || product.title}>
-                      <div className="collection-card-media">
-                        <span className="collection-badge-top">{defaults.top}</span>
-                        <WishlistButton product={product} />
-                        <div className="product-card-image-wrapper">
-                          <img src={product.img} alt={product.title} loading="lazy" />
-                        </div>
-                      </div>
-                      <div className="collection-card-body">
-                        <span className="collection-card-pill">{defaults.pill}</span>
-                        <h4>{product.title}</h4>
-                        <div className="collection-price-row">
-                          {product.price && <span className="price">{product.price}</span>}
-                        </div>
-                        <div className="collection-rating-row">
-                          <span className="star-icons">{defaults.rating.stars}</span>
-                          <span className="rating-count">{defaults.rating.count}</span>
-                        </div>
-                      </div>
-                      {product.handle && (
-                        <Link
-                          href={`/products/${product.handle}`}
-                          className="card-overlay"
-                          aria-label={`View ${product.title}`}
-                        />
-                      )}
-                    </article>
+                    <LazyCollectionProductCard
+                      key={product.id || product.title}
+                      product={product}
+                      index={index}
+                      badgeTop={defaults.top}
+                      badgePill={defaults.pill}
+                      rating={defaults.rating}
+                    />
                   );
                 })}
                 </div>
@@ -387,33 +372,14 @@ export default function CollectionPage({ collection, navItems }) {
                   const badgeIndex = (FIRST_ROW_PRODUCT_LIMIT + index) % badgePresets.length;
                   const defaults = badgePresets[badgeIndex];
                   return (
-                    <article className="collection-product-card collection-card-flat" key={product.id || product.title}>
-                      <div className="collection-card-media">
-                        <span className="collection-badge-top">{defaults.top}</span>
-                        <WishlistButton product={product} />
-                        <div className="product-card-image-wrapper">
-                          <img src={product.img} alt={product.title} loading="lazy" />
-                        </div>
-                      </div>
-                      <div className="collection-card-body">
-                        <span className="collection-card-pill">{defaults.pill}</span>
-                        <h4>{product.title}</h4>
-                        <div className="collection-price-row">
-                          {product.price && <span className="price">{product.price}</span>}
-                        </div>
-                        <div className="collection-rating-row">
-                          <span className="star-icons">{defaults.rating.stars}</span>
-                          <span className="rating-count">{defaults.rating.count}</span>
-                        </div>
-                      </div>
-                      {product.handle && (
-                        <Link
-                          href={`/products/${product.handle}`}
-                          className="card-overlay"
-                          aria-label={`View ${product.title}`}
-                        />
-                      )}
-                    </article>
+                    <LazyCollectionProductCard
+                      key={product.id || product.title}
+                      product={product}
+                      index={FIRST_ROW_PRODUCT_LIMIT + index}
+                      badgeTop={defaults.top}
+                      badgePill={defaults.pill}
+                      rating={defaults.rating}
+                    />
                   );
                 })}
                 </div>

@@ -71,21 +71,29 @@
 
 .collection-badge-top {
   position: absolute;
-  top: var(--spacing-5);
-  left: var(--spacing-5);
+  top: 5px;
+  left: 5px;
+  max-width: calc(100% - 56px); /* 36px (wishlist-btn width) + 10px (right margin) + 10px (left margin + gap) */
+  min-height: 28px;
+  height: fit-content;
   background: var(--color-primary-dark);
   color: var(--color-text-on-primary);
   font-size: var(--font-size-sm);
   padding: var(--spacing-2) var(--spacing-5);
-  border-radius: var(--radius-pill);
+  border-radius: .75em;
   font-weight: var(--font-weight-semibold);
   z-index: 3;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
 }
 
 .wishlist-btn {
   position: absolute;
-  top: var(--spacing-5);
-  right: var(--spacing-5);
+  top: 5px;
+  right: 5px;
   width: 36px;
   height: 36px;
   border-radius: var(--radius-full);

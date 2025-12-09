@@ -1,11 +1,12 @@
 import Head from "next/head";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import Layout from "../components/Layout";
-import ProductCard from "../components/ProductCard";
+import LazyProductCard from "../components/LazyProductCard";
 import { fetchShopifyProducts, fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
 import { normalizeProduct } from "../lib/productFormatter";
 import { useCart } from "../context/CartContext";
+import { useHeaderHeightState } from "../hooks/useHeaderHeightState";
 import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 
@@ -16,8 +17,12 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [isBuilding, setIsBuilding] = useState(false);
   const [bundleName, setBundleName] = useState("");
+  const [isPanelFixed, setIsPanelFixed] = useState(false);
+  const [panelLeft, setPanelLeft] = useState(0);
+  const headerHeight = useHeaderHeightState();
   const { cartId, refreshCart } = useCart();
   const router = useRouter();
+  const panelRef = useRef(null);
 
   // Create a map for quick lookup of full product data
   const productsMap = useMemo(() => {
@@ -123,6 +128,68 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
 
   const canBuildBundle = selectedProducts.length >= MIN_BUNDLE_ITEMS && selectedProducts.length <= MAX_BUNDLE_ITEMS;
 
+  // Handle sticky panel when scrolling past header
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleScroll = () => {
+      // Disable fixed panel on mobile (screens smaller than 1024px)
+      if (window.innerWidth < 1024) {
+        setIsPanelFixed(false);
+        return;
+      }
+
+      const header = document.querySelector(".header");
+      const panel = panelRef.current;
+      
+      if (!header || !panel) return;
+
+      const headerRect = header.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      
+      // When panel is sticky, check if header bottom has reached or passed panel top
+      const headerBottom = headerRect.bottom;
+      const panelTop = panelRect.top;
+      
+      // When header bottom reaches panel top, fix panel at top (below header)
+      if (headerBottom >= panelTop) {
+        setIsPanelFixed(true);
+        setPanelLeft(panelRect.left);
+      } else {
+        setIsPanelFixed(false);
+      }
+    };
+
+    const handleResize = () => {
+      // Disable fixed panel on mobile when resizing
+      if (window.innerWidth < 1024) {
+        setIsPanelFixed(false);
+        return;
+      }
+
+      const panel = panelRef.current;
+      if (!panel) return;
+      
+      const panelRect = panel.getBoundingClientRect();
+      if (isPanelFixed) {
+        setPanelLeft(panelRect.left);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
+    
+    // Initial check with small delay to ensure DOM is ready
+    setTimeout(() => {
+      handleScroll();
+    }, 100);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isPanelFixed]);
+
   return (
     <>
       <Head>
@@ -138,7 +205,18 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
           </div>
 
           <div className="bundle-builder-content">
-            <div className="bundle-selection-panel">
+            <div 
+              ref={panelRef}
+              className={`bundle-selection-panel-wrapper ${isPanelFixed ? "panel-fixed" : ""}`}
+            >
+              <div 
+                className={`bundle-selection-panel ${isPanelFixed ? "fixed-top" : ""}`}
+                style={isPanelFixed ? { 
+                  left: `${panelLeft}px`,
+                  top: `${headerHeight}px`,
+                  maxHeight: `calc(100vh - ${headerHeight}px)`
+                } : {}}
+              >
               <div className="bundle-selection-header">
                 <h2>Selected Products ({selectedProducts.length}/{MAX_BUNDLE_ITEMS})</h2>
                 {selectedProducts.length > 0 && (
@@ -164,7 +242,14 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
                 <div className="bundle-selected-products">
                   {selectedProducts.map((product) => (
                     <div key={product.id} className="bundle-selected-item">
-                      <img src={product.img} alt={product.title} />
+                      <img 
+                        src={product.img} 
+                        alt={product.title} 
+                        loading="lazy"
+                        width="80"
+                        height="80"
+                        decoding="async"
+                      />
                       <div className="bundle-selected-info">
                         <h4>{product.title}</h4>
                         <span className="bundle-selected-price">{product.price}</span>
@@ -205,6 +290,7 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
                   </button>
                 </div>
               )}
+              </div>
             </div>
 
             <div className="bundle-products-grid">
@@ -226,7 +312,7 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
                         }
                       }}
                     >
-                      <ProductCard product={product} index={index} variant="flat" />
+                      <LazyProductCard product={product} index={index} variant="flat" />
                       {isSelected && (
                         <div className="bundle-product-selected-badge">
                           <span className="material-icons">check_circle</span>

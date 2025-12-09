@@ -1,0 +1,19 @@
+/* Reusable sticky element styles */
+.sticky-element {
+  position: sticky;
+  top: var(--header-height, 65px);
+  align-self: start;
+  height: fit-content;
+  max-height: calc(100vh - var(--header-height, 65px));
+  overflow-y: auto;
+}
+
+/* Disable sticky on mobile/tablet */
+@media (max-width: 900px) {
+  .sticky-element {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+

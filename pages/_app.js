@@ -3,6 +3,7 @@ import "../styles/design-system.css";
 import "../styles/components/auth-modal.css";
 import "../styles/components/skeleton.css";
 import "../styles/components/product-card.css";
+import "../styles/components/sticky-element.css";
 import "../styles/components/header.css";
 import "../styles/components/footer.css";
 import "../styles/components/buttons.css";

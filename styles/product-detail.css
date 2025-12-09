@@ -68,7 +68,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-7);
-  position: relative;
+  /* Sticky styles moved to .sticky-element class */
 }
 
 .product-main-image-container {
@@ -344,7 +344,8 @@
 
 .product-info h1 {
   font-size: var(--font-size-5xl);
-  font-weight: var(--font-weight-normal);
+  font-weight: bold;
+  margin-top: -8px !important;
   color: var(--color-text-primary);
   line-height: var(--line-height-comfortable);
   margin: 0;
@@ -1090,6 +1091,11 @@
   gap: 4px;
 }
 
+.product-rating-stars .star-icons {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
 .product-reviews-link {
   color: var(--color-primary);
   text-decoration: underline;
@@ -1528,6 +1534,8 @@
     gap: 24px;
     padding: 0 16px;
   }
+
+  /* .product-gallery sticky styles handled by .sticky-element media query */
 
   .product-social-proof {
     flex-direction: column;

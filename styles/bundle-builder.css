@@ -3,6 +3,9 @@
   padding: var(--spacing-13) var(--spacing-9) 80px;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .bundle-builder-header {
@@ -24,9 +27,33 @@
 
 .bundle-builder-content {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
   gap: var(--spacing-13);
   align-items: start;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.bundle-selection-panel-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: fit-content;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.bundle-selection-panel-wrapper.panel-fixed {
+  /* Maintain grid space when panel is fixed - use the panel's original height */
+  min-height: var(--panel-height, auto);
+}
+
+.bundle-selection-panel-wrapper.panel-fixed .bundle-selection-panel {
+  /* When fixed, panel is taken out of flow but wrapper maintains space */
+  position: fixed;
 }
 
 .bundle-selection-panel {
@@ -39,6 +66,30 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
+  overflow-y: visible;
+  transition: top 0.2s ease-out, left 0.2s ease-out;
+  contain: layout;
+}
+
+.bundle-selection-panel.fixed-top {
+  position: fixed;
+  z-index: calc(var(--z-index-sticky) - 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 380px;
+  max-width: min(380px, calc(100vw - var(--spacing-9) * 2));
+  right: auto;
+  contain: layout;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .bundle-selection-panel.fixed-top {
+    width: 100%;
+    left: 0 !important;
+    right: 0;
+  }
 }
 
 .bundle-selection-header {
@@ -87,6 +138,8 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
+  overflow-y: visible;
+  min-width: 0;
 }
 
 .bundle-selected-item {
@@ -102,11 +155,15 @@
   min-width: 0;
   box-sizing: border-box;
   overflow: hidden;
+  flex-shrink: 1;
+  flex-basis: auto;
 }
 
 .bundle-selected-item img {
   width: 60px;
   height: 60px;
+  min-width: 60px;
+  flex-shrink: 0;
   object-fit: cover;
   border-radius: var(--input-border-radius);
   border: 1px solid var(--color-border-light);
@@ -143,6 +200,8 @@
   cursor: pointer;
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -246,7 +305,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  z-index: var(--z-index-dropdown);
+  z-index: 12;
   box-shadow: var(--shadow-3xl);
 }
 
@@ -272,16 +331,41 @@
   .bundle-builder-content {
     grid-template-columns: 1fr;
     gap: 30px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .bundle-selection-panel {
-    position: static;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .bundle-selection-panel-wrapper {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .bundle-selection-panel-wrapper.panel-fixed .bundle-selection-panel.fixed-top {
+    position: static !important;
   }
 }
 
 @media (max-width: 768px) {
   .bundle-builder-page {
     padding: 20px 16px 60px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .bundle-builder-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .bundle-builder-header {
@@ -321,11 +405,14 @@
     min-width: 0;
     box-sizing: border-box;
     overflow: hidden;
+    flex-shrink: 1;
   }
 
   .bundle-selected-item img {
     width: 50px;
     height: 50px;
+    min-width: 50px;
+    flex-shrink: 0;
   }
 
   .bundle-selected-info h4 {
@@ -368,6 +455,15 @@
 @media (max-width: 480px) {
   .bundle-builder-page {
     padding: var(--spacing-7) var(--spacing-5) var(--spacing-13);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .bundle-builder-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .bundle-builder-header h1 {
@@ -403,11 +499,14 @@
     min-width: 0;
     box-sizing: border-box;
     overflow: hidden;
+    flex-shrink: 1;
   }
 
   .bundle-selected-item img {
     width: 45px;
     height: 45px;
+    min-width: 45px;
+    flex-shrink: 0;
   }
 
   .bundle-selected-info h4 {
@@ -444,7 +543,16 @@
 @media (max-width: 640px) {
   .bundle-builder-page {
     width: calc(100% - 10px);
+    max-width: 100%;
     margin: var(--spacing-9) 5px;
     padding: var(--spacing-9) 5px 60px;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  
+  .bundle-builder-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }

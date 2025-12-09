@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
 import { useSlider } from "../hooks/useSlider";
 import { useCart } from "../context/CartContext";
+import { useHeaderHeight } from "../hooks/useHeaderHeight";
 import { formatPrice, normalizeProduct } from "../lib/productFormatter";
 import { fetchShopifyCollections, fetchShopifyMenuAsNavItems, fetchShopifyProducts } from "../lib/shopify";
 import { getNavItems } from "../lib/navUtils";
@@ -49,6 +50,9 @@ export default function CartPage({ navItems, allProducts = [] }) {
       standalone,
     };
   }, [items]);
+
+  // Calculate header height and set CSS variable for sticky summary
+  useHeaderHeight();
 
   // Get related products based on cart items
   const relatedProducts = useMemo(() => {
@@ -223,7 +227,7 @@ export default function CartPage({ navItems, allProducts = [] }) {
               ))}
             </div>
 
-            <div className="cart-summary-wrapper">
+            <div className="cart-summary-wrapper sticky-element">
               <aside className="cart-summary">
                 <h2>Order summary</h2>
                 <div className="cart-summary-row">

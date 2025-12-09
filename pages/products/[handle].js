@@ -13,6 +13,7 @@ import { useCart } from "../../context/CartContext";
 import { useSlider } from "../../hooks/useSlider";
 import { useRecentlyViewed } from "../../hooks/useRecentlyViewed";
 import { useProductVariant } from "../../hooks/useProductVariant";
+import { useHeaderHeight } from "../../hooks/useHeaderHeight";
 
 const formatPriceRange = (product) => {
   const min = Number(product.priceRange?.min?.amount);
@@ -125,6 +126,9 @@ export default function ProductDetailPage({ product, navItems }) {
 
     return () => clearInterval(interval);
   }, [hasCountdown]);
+
+  // Calculate header height and set CSS variable for sticky gallery
+  useHeaderHeight();
   
   // Custom hooks
   const { registerTrack, slide, hasMultipleSlides } = useSlider();
@@ -631,7 +635,7 @@ export default function ProductDetailPage({ product, navItems }) {
       </nav>
 
       <section className="product-hero">
-        <div className="product-gallery">
+        <div className="product-gallery sticky-element">
             {activeImage && images.length > 0 && (
               <div
                 className={`product-main-image-container ${clickToNavigate ? 'click-to-navigate' : ''}`}
