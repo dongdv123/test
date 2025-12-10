@@ -8,7 +8,7 @@ import ProductCard from "../components/ProductCard";
 import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../lib/shopify";
 import { fetchShopifyProductsLightweight, fetchNewProductsLightweight } from "../lib/shopifyLightweight";
 import { normalizeProduct } from "../lib/productFormatter";
-import { navLinks as baseNavLinks } from "../lib/siteContent";
+import { navLinks as baseNavLinks, fallbackTrendTabs } from "../lib/siteContent";
 import { getNavItems } from "../lib/navUtils";
 
 // Fallback quick links if menu is not available
@@ -94,8 +94,7 @@ const shopColumns = [
   },
 ];
 
-// Fallback trend tabs if Shopify data is not available
-const fallbackTrendTabs = ["advent calendar", "cat", "emotional support desk pets", "golf", "puzzle"];
+// Fallback trend catalog
 const fallbackTrendCatalog = fallbackTrendTabs.reduce((acc, tab) => {
   acc[tab] = fallbackTrendingItems;
   return acc;
@@ -239,6 +238,17 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
   const navItems = useMemo(() => {
     return getNavItems(shopifyMenuItems, shopifyCollections, baseNavLinks);
   }, [shopifyCollections, shopifyMenuItems]);
+  
+  // Get popular searches from top collections (first 4)
+  const popularSearches = useMemo(() => {
+    if (normalizedCollections && normalizedCollections.length > 0) {
+      return normalizedCollections
+        .slice(0, 4)
+        .map((collection) => collection.title?.toLowerCase() || "")
+        .filter(Boolean);
+    }
+    return ["advent calendar", "golf", "puzzle", "cat"]; // fallback
+  }, [normalizedCollections]);
 
   // Map quick-track menu items to quickLinks format
   const quickLinks = useMemo(() => {
@@ -404,7 +414,7 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
           <title>Search: {searchQuery} | Gikzo</title>
           <meta name="description" content={`Search results for ${searchQuery} at Gikzo`} />
         </Head>
-        <Layout navItems={navItems}>
+        <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
           <section className="section-shell">
             <div>
               <h1 className="section-head">Search Results: {searchQuery}</h1>
@@ -464,7 +474,7 @@ export default function Home({ shopifyProducts = [], newProducts = [], shopifyCo
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href="https://gikzo.com" />
       </Head>
-      <Layout navItems={navItems}>
+      <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
         <section className="quick-row">
         <div className="container">
           <div className="quick-carousel">

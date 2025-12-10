@@ -17,8 +17,9 @@ const ExitIntentPopup = dynamic(() => import("./ExitIntentPopup"), { ssr: false 
 const SEARCH_HISTORY_KEY = "search-history";
 const MAX_SEARCH_HISTORY = 5;
 
-const trendingSearches = ["advent calendar", "golf", "puzzle", "emotional support desk pets", "cat"];
-const popularSearches = ["advent calendar", "golf", "puzzle", "cat"];
+import { fallbackTrendTabs } from "../lib/siteContent";
+
+const fallbackPopularSearches = ["advent calendar", "golf", "puzzle", "cat"];
 
 function NavItem({ item, isActive, onNavClick, closeMenu, onSubMenuClick }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -331,12 +332,18 @@ function NavItem({ item, isActive, onNavClick, closeMenu, onSubMenuClick }) {
   );
 }
 
-export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClick, children }) {
+export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClick, children, trendTabs, popularSearches }) {
   const router = useRouter();
   const { menuOpen, toggleMenu, closeMenu: originalCloseMenu, navItems: computedNavItems, footerSections, handleNavClick } = useSiteChrome({
     navItems,
     onNavClick,
   });
+  
+  // Use trendTabs from props if available, otherwise use fallback
+  const trendingSearches = trendTabs && trendTabs.length > 0 ? trendTabs : fallbackTrendTabs;
+  
+  // Use popularSearches from props if available, otherwise use fallback
+  const popularSearchesList = popularSearches && popularSearches.length > 0 ? popularSearches : fallbackPopularSearches;
 
   const closeMenu = () => {
     setSubMenuStack([]);
@@ -647,7 +654,7 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
                       <section className="search-suggestion-section">
                         <p className="search-suggestion-label">MOST POPULAR</p>
                         <div className="search-suggestion-items">
-                          {popularSearches.map((item) => (
+                          {popularSearchesList.map((item) => (
                             <Link
                               key={item}
                               href={`/search?q=${encodeURIComponent(item)}`}

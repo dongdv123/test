@@ -1,10 +1,21 @@
 /* Header Component */
 .header {
-  background: var(--color-bg-tertiary);
+  background: var(--color-neutral-100);
   position: sticky;
   top: 0;
   z-index: var(--z-index-sticky);
   border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Desktop: Header container width same as hero-feature */
+@media (min-width: 1025px) {
+  .header .container {
+    width: 100%;
+    padding: 0 8%;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
 }
 
 .header-top {

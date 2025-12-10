@@ -1,12 +1,14 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useMemo } from "react";
 import Layout from "../components/Layout";
 import WishlistButton from "../components/WishlistButton";
-import { fetchShopifyProducts, fetchShopifyMenuAsNavItems } from "../lib/shopify";
+import { fetchShopifyProducts, fetchShopifyMenuAsNavItems, fetchShopifyCollections } from "../lib/shopify";
 import { normalizeProduct } from "../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
 import { getNavItems } from "../lib/navUtils";
+import { calculateTrendTabs, calculatePopularSearches } from "../lib/trendingUtils";
 
 const badgePresets = [
   {
@@ -31,40 +33,67 @@ const badgePresets = [
   },
 ];
 
-export default function SearchPage({ searchResults = [], searchQuery = "", navItems, allProducts = [], searchType = "title" }) {
+export default function SearchPage({ searchResults = [], searchQuery = "", navItems, allProducts = [], searchType = "title", trendTabs, popularSearches }) {
   const router = useRouter();
   const query = router.query.q || searchQuery;
   const type = router.query.type || searchType; // "title" for search bar, "tags" for gift-finder
 
   // Filter products client-side based on search query
-  const filteredProducts = query && query.trim() 
-    ? allProducts.filter((product) => {
-        const normalizedProduct = normalizeProduct(product);
-        if (!normalizedProduct) return false;
-        
-        const searchTerms = query.toLowerCase().trim().split(/\s+/);
-        
-        if (type === "tags") {
-          // Gift finder: search by tags
-          const productTags = (normalizedProduct.tags || []).map(tag => tag.toLowerCase());
-          const productType = (normalizedProduct.productType || "").toLowerCase();
-          
-          // Check if any search term matches tags or product type
-          return searchTerms.some(term => 
-            productTags.some(tag => tag.includes(term) || term.includes(tag)) ||
-            productType.includes(term)
-          );
-        } else {
-          // Search bar: search by title only
-          const productTitle = (normalizedProduct.title || "").toLowerCase();
-          
-          // Check if all search terms match in product title
-          return searchTerms.every(term => productTitle.includes(term));
-        }
-      })
-    : [];
+  const filteredProducts = useMemo(() => {
+    if (!query || !query.trim() || !allProducts || allProducts.length === 0) {
+      return [];
+    }
 
-  const displayResults = searchResults.length > 0 ? searchResults : filteredProducts;
+    try {
+      const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(term => term.length > 0);
+      if (searchTerms.length === 0) return [];
+
+      return allProducts.filter((product) => {
+        try {
+          const normalizedProduct = normalizeProduct(product);
+          if (!normalizedProduct) return false;
+          
+          if (type === "tags") {
+            // Gift finder: search by tags
+            const productTags = (normalizedProduct.tags || []).map(tag => tag.toLowerCase());
+            const productType = (normalizedProduct.productType || "").toLowerCase();
+            
+            // Check if any search term matches tags or product type
+            return searchTerms.some(term => 
+              productTags.some(tag => tag.includes(term) || term.includes(tag)) ||
+              productType.includes(term)
+            );
+          } else {
+            // Search bar: search by title, tags, and productType
+            const productTitle = (normalizedProduct.title || "").toLowerCase();
+            const productTags = (normalizedProduct.tags || []).map(tag => tag.toLowerCase()).join(" ");
+            const productType = (normalizedProduct.productType || "").toLowerCase();
+            
+            // Get additional fields from original product if available (with safe access)
+            const productDescription = ((product?.description || product?.descriptionHtml || "") + "").toLowerCase().replace(/<[^>]*>/g, ""); // Remove HTML tags
+            const productVendor = ((product?.vendor || "") + "").toLowerCase();
+            
+            // Combine all searchable fields
+            const searchableText = `${productTitle} ${productTags} ${productType} ${productDescription} ${productVendor}`.toLowerCase();
+            
+            // Check if all search terms match in any of the searchable fields
+            // This allows partial matches and is more flexible than exact title match
+            return searchTerms.every(term => searchableText.includes(term));
+          }
+        } catch (error) {
+          console.warn("Error filtering product:", error);
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error("Error in search filter:", error);
+      return [];
+    }
+  }, [query, type, allProducts]);
+
+  const displayResults = useMemo(() => {
+    return searchResults.length > 0 ? searchResults : filteredProducts;
+  }, [searchResults, filteredProducts]);
 
   return (
     <>
@@ -73,7 +102,7 @@ export default function SearchPage({ searchResults = [], searchQuery = "", navIt
         <meta name="description" content={query ? `Search results for ${query}` : "Search for products"} />
         <link rel="canonical" href={`https://gikzo.com/search${query ? `?q=${encodeURIComponent(query)}` : ""}`} />
       </Head>
-      <Layout navItems={navItems}>
+      <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
         <section className="search-results-section">
           <div className="container">
             <header className="search-results-header">
@@ -173,7 +202,19 @@ export async function getServerSideProps({ query }) {
     console.error("Failed to fetch menu:", error);
   }
 
-  const navItems = getNavItems(menuItems, [], baseNavLinks);
+  // Fetch collections for trending data
+  let collections = [];
+  try {
+    collections = await fetchShopifyCollections(20).catch(() => []);
+  } catch (error) {
+    console.error("Failed to fetch collections:", error);
+  }
+  
+  const navItems = getNavItems(menuItems, collections, baseNavLinks);
+  
+  // Calculate trending data for header
+  const trendTabs = calculateTrendTabs(allProducts, collections);
+  const popularSearches = calculatePopularSearches(collections);
 
   return {
     props: {
@@ -182,6 +223,8 @@ export async function getServerSideProps({ query }) {
       searchType, // Pass search type to component
       navItems,
       allProducts, // Pass all products for client-side filtering
+      trendTabs,
+      popularSearches,
     },
   };
 }

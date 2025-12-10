@@ -12,6 +12,7 @@ export const useRouteLoading = ({ delay = 150, minVisible = 300 } = {}) => {
   const [targetRoute, setTargetRoute] = useState(null);
   const delayTimerRef = useRef(null);
   const minTimerRef = useRef(null);
+  const safetyTimeoutRef = useRef(null);
   const startTimestampRef = useRef(0);
 
   const clearTimers = () => {
@@ -23,24 +24,47 @@ export const useRouteLoading = ({ delay = 150, minVisible = 300 } = {}) => {
       clearTimeout(minTimerRef.current);
       minTimerRef.current = null;
     }
+    if (safetyTimeoutRef.current) {
+      clearTimeout(safetyTimeoutRef.current);
+      safetyTimeoutRef.current = null;
+    }
   };
 
   useEffect(() => {
     const handleStart = (url) => {
       clearTimers();
-      setTargetRoute(normalizePath(url));
+      const normalizedPath = normalizePath(url);
+      
+      // Skip skeleton for search page (client-side filtering, no real navigation needed)
+      if (normalizedPath === "/search") {
+        return;
+      }
+      
+      setTargetRoute(normalizedPath);
       delayTimerRef.current = setTimeout(() => {
         startTimestampRef.current = Date.now();
         setIsLoading(true);
+        
+        // Safety timeout: force stop after 5 seconds to prevent stuck loading
+        safetyTimeoutRef.current = setTimeout(() => {
+          console.warn("Route loading timeout, forcing stop");
+          setIsLoading(false);
+          setTargetRoute(null);
+          startTimestampRef.current = 0;
+          safetyTimeoutRef.current = null;
+        }, 5000);
       }, delay);
     };
 
     const handleStop = () => {
+      clearTimers(); // Always clear all timers first
+      
       if (delayTimerRef.current) {
-        clearTimeout(delayTimerRef.current);
+        // Route changed before delay timer fired, cancel loading
         delayTimerRef.current = null;
         startTimestampRef.current = 0;
         setTargetRoute(null);
+        setIsLoading(false);
         return;
       }
 

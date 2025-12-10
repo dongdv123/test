@@ -1,9 +1,9 @@
 /* Bundle Builder Page Styles */
 .bundle-builder-page {
   padding: var(--spacing-13) var(--spacing-9) 80px;
-  max-width: 1400px;
+  width: var(--section-width);
+  max-width: var(--site-max-width);
   margin: 0 auto;
-  width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
 }

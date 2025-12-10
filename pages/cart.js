@@ -9,8 +9,9 @@ import { formatPrice, normalizeProduct } from "../lib/productFormatter";
 import { fetchShopifyCollections, fetchShopifyMenuAsNavItems, fetchShopifyProducts } from "../lib/shopify";
 import { getNavItems } from "../lib/navUtils";
 import { navLinks as baseNavLinks } from "../lib/siteContent";
+import { calculateTrendTabs, calculatePopularSearches } from "../lib/trendingUtils";
 
-export default function CartPage({ navItems, allProducts = [] }) {
+export default function CartPage({ navItems, allProducts = [], trendTabs, popularSearches }) {
   const { items, subtotal, updateQuantity, removeItem, checkoutUrl } = useCart();
   const { registerTrack, slide, hasMultipleSlides } = useSlider();
   
@@ -126,7 +127,7 @@ export default function CartPage({ navItems, allProducts = [] }) {
   }, [items, allProducts]);
 
   return (
-    <Layout navItems={navItems}>
+    <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
       <section className="cart-page container">
         <header className="cart-header">
           <h1>Shopping Cart ({items.length})</h1>
@@ -415,10 +416,17 @@ export async function getServerSideProps() {
       }),
     ]);
     const navItems = getNavItems(menuItems, collections, baseNavLinks);
+    
+    // Calculate trending data for header
+    const trendTabs = calculateTrendTabs(products, collections);
+    const popularSearches = calculatePopularSearches(collections);
+    
     return {
       props: {
         navItems,
         allProducts: products || [],
+        trendTabs,
+        popularSearches,
       },
     };
   } catch (error) {

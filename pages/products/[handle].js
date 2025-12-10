@@ -3,11 +3,12 @@ import Link from "next/link";
 import Layout from "../../components/Layout";
 import ProductCard from "../../components/ProductCard";
 import WishlistButton from "../../components/WishlistButton";
-import { fetchProductByHandle, fetchShopifyCollections, fetchShopifyMenuAsNavItems, createCart, addToCart } from "../../lib/shopify";
+import { fetchProductByHandle, fetchShopifyCollections, fetchShopifyMenuAsNavItems, fetchShopifyProducts, createCart, addToCart } from "../../lib/shopify";
 import { formatPrice } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { getNavItems } from "../../lib/navUtils";
 import { getBestInstallmentOption } from "../../lib/shopifyInstallments";
+import { calculateTrendTabs, calculatePopularSearches } from "../../lib/trendingUtils";
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { useSlider } from "../../hooks/useSlider";
@@ -46,7 +47,7 @@ const getGalleryImages = (product) => {
   return Array.from(new Set(sources));
 };
 
-export default function ProductDetailPage({ product, navItems }) {
+export default function ProductDetailPage({ product, navItems, trendTabs, popularSearches }) {
   // Get images including variant images - recalculate when product changes
   const images = useMemo(() => getGalleryImages(product), [product]);
   const priceText = formatPriceRange(product);
@@ -613,10 +614,10 @@ export default function ProductDetailPage({ product, navItems }) {
   return (
     <>
       <Head>
-        <title>{product.title} | Gikzo</title>
-        <meta name="description" content={product.description || `${product.title} - Available at Gikzo`} />
-        <meta property="og:title" content={product.title} />
-        <meta property="og:description" content={product.description || product.title} />
+        <title>{product.seo?.title || product.title} | Gikzo</title>
+        <meta name="description" content={product.seo?.description || product.description || `${product.title} - Available at Gikzo`} />
+        <meta property="og:title" content={product.seo?.title || product.title} />
+        <meta property="og:description" content={product.seo?.description || product.description || product.title} />
         <meta property="og:type" content="product" />
         {images[0] && <meta property="og:image" content={images[0]} />}
         <meta property="product:price:amount" content={activeVariant?.price || product.priceRange?.min?.amount || "0"} />
@@ -627,7 +628,7 @@ export default function ProductDetailPage({ product, navItems }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       </Head>
-      <Layout navItems={navItems}>
+      <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
         <nav className="collection-breadcrumb container">
         <span>
           <Link href="/">home</Link>
@@ -2201,11 +2202,27 @@ export async function getServerSideProps({ params }) {
       return { notFound: true };
     }
     const navItems = getNavItems(menuItems, navCollections, baseNavLinks);
+    
+    // Calculate trending data for header (with error handling)
+    let trendTabs = [];
+    let popularSearches = [];
+    try {
+      const [allProducts] = await Promise.all([
+        fetchShopifyProducts(50).catch(() => []),
+      ]);
+      trendTabs = calculateTrendTabs(allProducts, navCollections);
+      popularSearches = calculatePopularSearches(navCollections);
+    } catch (error) {
+      console.error("Failed to calculate trending data:", error);
+      // Use fallback empty arrays if calculation fails
+    }
 
     return {
       props: {
         product,
         navItems,
+        trendTabs,
+        popularSearches,
       },
     };
   } catch (error) {

@@ -4,11 +4,12 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Layout from "../../components/Layout";
 import LazyCollectionProductCard from "../../components/LazyCollectionProductCard";
 import FeaturedReviews from "../../components/FeaturedReviews";
-import { fetchShopifyCollections, fetchShopifyMenuAsNavItems } from "../../lib/shopify";
+import { fetchShopifyCollections, fetchShopifyMenuAsNavItems, fetchShopifyProducts } from "../../lib/shopify";
 import { fetchCollectionByHandleLightweight } from "../../lib/shopifyLightweight";
 import { normalizeProduct } from "../../lib/productFormatter";
 import { navLinks as baseNavLinks } from "../../lib/siteContent";
 import { getNavItems } from "../../lib/navUtils";
+import { calculateTrendTabs, calculatePopularSearches } from "../../lib/trendingUtils";
 
 const badgePresets = [
   {
@@ -45,7 +46,7 @@ const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
 ];
 
-export default function CollectionPage({ collection, navItems }) {
+export default function CollectionPage({ collection, navItems, trendTabs, popularSearches }) {
   const allProducts = (collection?.products || [])
     .map(normalizeProduct)
     .filter(Boolean);
@@ -222,7 +223,7 @@ export default function CollectionPage({ collection, navItems }) {
         <meta property="og:type" content="website" />
         <link rel="canonical" href={`https://gikzo.com/collections/${collection.handle}`} />
       </Head>
-      <Layout navItems={navItems}>
+      <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
         <header className="collection-page-header">
         <div className="container">
         

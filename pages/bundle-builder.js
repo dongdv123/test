@@ -13,7 +13,7 @@ import { navLinks as baseNavLinks } from "../lib/siteContent";
 const MAX_BUNDLE_ITEMS = 3;
 const MIN_BUNDLE_ITEMS = 2;
 
-export default function BundleBuilderPage({ shopifyProducts = [], navItems = baseNavLinks }) {
+export default function BundleBuilderPage({ shopifyProducts = [], navItems = baseNavLinks, trendTabs, popularSearches }) {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [isBuilding, setIsBuilding] = useState(false);
   const [bundleName, setBundleName] = useState("");
@@ -197,7 +197,7 @@ export default function BundleBuilderPage({ shopifyProducts = [], navItems = bas
         <meta name="description" content="Create your custom bundle by selecting 2-3 products" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Layout navItems={navItems}>
+      <Layout navItems={navItems} trendTabs={trendTabs} popularSearches={popularSearches}>
         <div className="bundle-builder-page">
           <div className="bundle-builder-header">
             <h1>Bundle Builder</h1>
@@ -347,10 +347,17 @@ export async function getServerSideProps() {
       }),
     ]);
     const navItems = getNavItems(menuItems, collections, baseNavLinks);
+    
+    // Calculate trending data for header
+    const trendTabs = calculateTrendTabs(products, collections);
+    const popularSearches = calculatePopularSearches(collections);
+    
     return {
       props: {
         shopifyProducts: products || [],
         navItems,
+        trendTabs,
+        popularSearches,
       },
     };
   } catch (error) {
