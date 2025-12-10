@@ -1041,48 +1041,50 @@ export default function ProductDetailPage({ product, navItems }) {
                 <div className="product-trust-badges">
                   <div className="trust-badge">
                     <span className="trust-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="7" width="13" height="10" rx="2" />
-                        <path d="M16 11h2.5a1.5 1.5 0 0 1 1.32.82l1.18 2.36A1 1 0 0 1 20.1 16H16" />
-                        <circle cx="7.5" cy="17.5" r="1.5" />
-                        <circle cx="17" cy="17.5" r="1.5" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
                     </span>
                     <span className="trust-text">
-                      Free Shipping
+                      Secure checkout
                     </span>
                   </div>
                   <div className="trust-badge">
                     <span className="trust-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="6" y="11" width="12" height="9" rx="2" />
-                        <path d="M9 11V8a3 3 0 0 1 6 0v3" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 3h15v13H1zM16 8h4l3 8H16z" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
                       </svg>
                     </span>
                     <span className="trust-text">
-                      Secure Checkout
+                      Free shipping
                     </span>
                   </div>
                   <div className="trust-badge">
                     <span className="trust-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 12a9 9 0 1 1 2.64 6.36" />
-                        <polyline points="3 12 3 17 8 17" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                        <path d="M8 16H3v5" />
                       </svg>
                     </span>
                     <span className="trust-text">
-                      30-Day Returns
+                      30-day return
                     </span>
                   </div>
                   <div className="trust-badge">
                     <span className="trust-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7l7-4z" />
-                        <path d="m9.5 12.5 2 2 3-3.5" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        <line x1="9" y1="10" x2="15" y2="10" />
+                        <line x1="9" y1="14" x2="13" y2="14" />
                       </svg>
                     </span>
                     <span className="trust-text">
-                      Money-Back Guarantee
+                      24/7 support
                     </span>
                   </div>
                 </div>
