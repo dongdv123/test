@@ -8,6 +8,7 @@ import "../styles/components/header.css";
 import "../styles/components/footer.css";
 import "../styles/components/buttons.css";
 import "../styles/components/slider.css";
+import "../styles/components/exit-intent-popup.css";
 import "../styles/components/featured-reviews.css";
 import "../styles/components/collection-products.css";
 import "../styles/product-detail.css";

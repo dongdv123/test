@@ -12,6 +12,7 @@ import { organizeMenuItemsByFilterTags, getPrimaryFilterTagNumber } from "../lib
 
 const AuthModal = dynamic(() => import("./AuthModal"), { ssr: false });
 const RouteSkeleton = dynamic(() => import("./RouteSkeleton"), { ssr: false });
+const ExitIntentPopup = dynamic(() => import("./ExitIntentPopup"), { ssr: false });
 
 const SEARCH_HISTORY_KEY = "search-history";
 const MAX_SEARCH_HISTORY = 5;
@@ -987,6 +988,7 @@ export default function Layout({ navItems = baseNavLinks, activeNavId, onNavClic
         onClose={closeAuthModal}
         onSwitch={setAuthMode}
       />
+      <ExitIntentPopup />
     </>
   );
 }
