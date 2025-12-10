@@ -87,6 +87,7 @@ export default function ProductDetailPage({ product, navItems }) {
   const [countdownTime, setCountdownTime] = useState(null);
   const [installmentOption, setInstallmentOption] = useState(null);
   const [isLoadingInstallment, setIsLoadingInstallment] = useState(false);
+  const [showSizeGuideModal, setShowSizeGuideModal] = useState(false);
 
   // Check if product has countdown tag (used in both useEffect and render)
   const hasCountdown = useMemo(() => {
@@ -450,6 +451,17 @@ export default function ProductDetailPage({ product, navItems }) {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showZoomPopup]);
+
+  // Handle keyboard escape to close size guide modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showSizeGuideModal) {
+        setShowSizeGuideModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showSizeGuideModal]);
 
   // Sticky CTA visibility - show only when Add to Cart button is completely hidden from viewport (minus header height)
   useEffect(() => {
@@ -1515,8 +1527,7 @@ export default function ProductDetailPage({ product, navItems }) {
                 className="product-size-guide-link"
                 onClick={(e) => {
                   e.preventDefault();
-                  // TODO: Open size guide modal or navigate to size guide page
-                  alert('Size guide will be displayed here');
+                  setShowSizeGuideModal(true);
                 }}
               >
                 {product.productType} size guide
@@ -1536,8 +1547,7 @@ export default function ProductDetailPage({ product, navItems }) {
                   className="product-size-guide-link-inline"
                   onClick={(e) => {
                     e.preventDefault();
-                    // TODO: Open size guide modal or navigate to size guide page
-                    alert('Size guide will be displayed here');
+                    setShowSizeGuideModal(true);
                   }}
                 >click here for size guide</a>)</span>
               )}
@@ -2077,6 +2087,94 @@ export default function ProductDetailPage({ product, navItems }) {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Size Guide Modal */}
+      {showSizeGuideModal && (
+        <div className="size-guide-modal-overlay" onClick={() => setShowSizeGuideModal(false)}>
+          <div className="size-guide-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="size-guide-modal-close"
+              onClick={() => setShowSizeGuideModal(false)}
+              aria-label="Close size guide"
+            >
+              ✕
+            </button>
+            <div className="size-guide-modal-header">
+              <h3>{product.productType || 'Product'} Size Guide</h3>
+            </div>
+            <div className="size-guide-modal-content">
+              <div className="size-guide-intro">
+                <p>Find the perfect fit for your {product.productType?.toLowerCase() || 'product'}. Use the measurements below to determine your size.</p>
+              </div>
+              
+              <div className="size-guide-table-wrapper">
+                <table className="size-guide-table">
+                  <thead>
+                    <tr>
+                      <th>Size</th>
+                      <th>Width (inches)</th>
+                      <th>Length (inches)</th>
+                      <th>Fit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>XS</td>
+                      <td>18-20</td>
+                      <td>26-27</td>
+                      <td>Extra Small</td>
+                    </tr>
+                    <tr>
+                      <td>S</td>
+                      <td>20-22</td>
+                      <td>27-28</td>
+                      <td>Small</td>
+                    </tr>
+                    <tr>
+                      <td>M</td>
+                      <td>22-24</td>
+                      <td>28-29</td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>L</td>
+                      <td>24-26</td>
+                      <td>29-30</td>
+                      <td>Large</td>
+                    </tr>
+                    <tr>
+                      <td>XL</td>
+                      <td>26-28</td>
+                      <td>30-31</td>
+                      <td>Extra Large</td>
+                    </tr>
+                    <tr>
+                      <td>XXL</td>
+                      <td>28-30</td>
+                      <td>31-32</td>
+                      <td>2X Large</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="size-guide-measurement-tips">
+                <h4>How to Measure</h4>
+                <ul>
+                  <li><strong>Width:</strong> Measure across the chest/bust at the widest point, keeping the tape measure parallel to the ground.</li>
+                  <li><strong>Length:</strong> Measure from the top of the shoulder down to the desired hem length.</li>
+                  <li>For the most accurate fit, measure while wearing the undergarments you plan to wear with this item.</li>
+                  <li>If you're between sizes, we recommend sizing up for a more comfortable fit.</li>
+                </ul>
+              </div>
+
+              <div className="size-guide-note">
+                <p><strong>Note:</strong> Sizes may vary slightly by style. If you have questions about sizing, please contact our customer service team.</p>
+              </div>
+            </div>
           </div>
         </div>
       )}
